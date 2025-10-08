@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import '../styles/Sidebar.css';
 
 function Sidebar() {
-  //const location = useLocation();
+  const location = useLocation();
 
   const menuItems = [
     { path: '/dashboard', icon: 'bi-grid', label: 'Dashboard' },
@@ -19,6 +19,7 @@ function Sidebar() {
           <Link
             key={item.path}
             to={item.path}
+            className={`menu-item ${location.pathname === item.path ? 'active' : ''}`}
           >
             <i className={`bi ${item.icon}`}></i>
             <span>{item.label}</span>
