@@ -5,7 +5,7 @@
   overflow: hidden;
 }
 
-/* Leva strana - Branding */
+/* Left Side - Branding */
 .register-brand-side {
   flex: 1;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -124,7 +124,7 @@
   opacity: 0.8;
 }
 
-/* Desna strana - Register Form */
+/* Right Side - Register Form */
 .register-form-side {
   flex: 1;
   display: flex;
