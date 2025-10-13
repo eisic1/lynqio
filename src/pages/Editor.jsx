@@ -60,6 +60,7 @@ function Editor() {
     });
   };
 
+  const [activeTab, setActiveTab] = useState('links');
   const [previewDevice, setPreviewDevice] = useState('mobile');
   const [showAddModal, setShowAddModal] = useState(false);
   //const [editingLink, setEditingLink] = useState(null);
@@ -149,201 +150,220 @@ function Editor() {
 
               {/* Tab Navigation */}
               <div className="editor-tabs">
-                <button className="tab-btn active">
+                <button className={`tab-btn ${activeTab === 'links' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('links')}>
                   <i className="bi bi-link-45deg"></i>
                   Links
                 </button>
-                <button className="tab-btn">
+                <button className={`tab-btn ${activeTab === 'appearance' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('appearance')}>
                   <i className="bi bi-palette"></i>
                   Appearance
                 </button>
-                <button className="tab-btn">
+                <button className={`tab-btn ${activeTab === 'settings' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('settings')}>
                   <i className="bi bi-gear"></i>
                   Settings
                 </button>
               </div>
 
-              {/* Add Link Button */}
-              <button 
-                className="btn-add-link"
-                onClick={() => { 
-                    setShowAddModal(true);
-                    setNewLink({ title: '', url: '', icon: 'bi-link-45deg' });
-                 }}
-              >
-                <i className="bi bi-plus-lg"></i>
-                Add New Link
-              </button>
-
-              {/* Links List - Draggable */}
-              <div className="editor-links-list">
-                {links.map((link, index) => (
-                  <div
-                    key={link.id}
-                    className="editor-link-item"
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, index)}
-                    onDragOver={(e) => handleDragOver(e, index)}
-                    onDrop={(e) => handleDrop(e, index)}
-                  >
-                    <div className="drag-handle">
-                      <i className="bi bi-grip-vertical"></i>
-                    </div>
-                    
-                    <div className="link-icon-preview">
-                      <i className={`bi ${link.icon}`}></i>
-                    </div>
-                    
-                    <div className="link-details">
-                      <h4>{link.title}</h4>
-                      <span>{link.url}</span>
-                    </div>
-
-                    <div className="link-item-actions">
-                      <label className="switch-small">
-                        <input 
-                          type="checkbox" 
-                          checked={link.active}
-                          onChange={() => handleToggleLink(link.id)}
-                        />
-                        <span className="slider-small"></span>
-                      </label>
-                      
-                      <button 
-                        className="btn-icon-small"
-                        onClick={() => handleEditingLink(link)}
-                      >
-                        <i className="bi bi-pencil"></i>
-                      </button>
-                      
-                      <button 
-                        className="btn-icon-small btn-delete-small"
-                        onClick={() => handleDeleteLink(link.id)}
-                      >
-                        <i className="bi bi-trash"></i>
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Customization Panel */}
-            <div className="customization-panel">
-            <h3>Appearance</h3>
-            
-            {/* Background Type Selector */}
-            <div className="custom-option">
-                <label>Background Type</label>
-                <div className="background-type-selector">
-                <button
-                    className={`type-btn ${customization.backgroundType === 'color' ? 'active' : ''}`}
-                    onClick={() => setCustomization({
-                    ...customization,
-                    backgroundType: 'color'
-                    })}
-                >
-                    <i className="bi bi-palette"></i>
-                    Color
-                </button>
-                <button
-                    className={`type-btn ${customization.backgroundType === 'image' ? 'active' : ''}`}
-                    onClick={() => setCustomization({
-                    ...customization,
-                    backgroundType: 'image'
-                    })}
-                >
-                    <i className="bi bi-image"></i>
-                    Image
-                </button>
-                </div>
-            </div>
-
-            {/* Background Color - prikaži samo ako je color selektovan */}
-            {customization.backgroundType === 'color' && (
-                <div className="custom-option">
-                <label>Background Color</label>
-                <input 
-                    type="color" 
-                    value={customization.backgroundColor}
-                    onChange={(e) => setCustomization({
-                    ...customization,
-                    backgroundColor: e.target.value
-                    })}
-                />
-                </div>
-            )}
-
-            {/* Background Image - prikaži samo ako je image selektovan */}
-            {customization.backgroundType === 'image' && (
-                <div className="custom-option">
-                <label>Background Image</label>
-                {!customization.backgroundImage ? (
-                    <div className="image-upload-area">
-                    <input
-                        type="file"
-                        id="bg-image-upload"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        style={{ display: 'none' }}
-                    />
-                    <label htmlFor="bg-image-upload" className="upload-label">
-                        <i className="bi bi-cloud-upload"></i>
-                        <span>Click to upload image</span>
-                        <small>PNG, JPG up to 5MB</small>
-                    </label>
-                    </div>
-                ) : (
-                    <div className="image-preview-container">
-                    <img 
-                        src={customization.backgroundImage} 
-                        alt="Background" 
-                        className="background-preview-img"
-                    />
+              {/* TAB CONTENT - Links */}
+                {activeTab === 'links' && (
+                <>
+                    {/* Add Link Button */}
                     <button 
-                        className="btn-remove-image"
-                        onClick={handleRemoveBackgroundImage}
+                    className="btn-add-link"
+                    onClick={() => setShowAddModal(true)}
                     >
-                        <i className="bi bi-trash"></i>
-                        Remove Image
+                    <i className="bi bi-plus-lg"></i>
+                    Add New Link
                     </button>
+
+                    {/* Links List - Draggable */}
+                    <div className="editor-links-list">
+                    {links.map((link, index) => (
+                        <div
+                        key={link.id}
+                        className="editor-link-item"
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, index)}
+                        onDragOver={(e) => handleDragOver(e, index)}
+                        onDrop={(e) => handleDrop(e, index)}
+                        >
+                        <div className="drag-handle">
+                            <i className="bi bi-grip-vertical"></i>
+                        </div>
+                        
+                        <div className="link-icon-preview">
+                            <i className={`bi ${link.icon}`}></i>
+                        </div>
+                        
+                        <div className="link-details">
+                            <h4>{link.title}</h4>
+                            <span>{link.url}</span>
+                        </div>
+
+                        <div className="link-item-actions">
+                            <label className="switch-small">
+                            <input 
+                                type="checkbox" 
+                                checked={link.active}
+                                onChange={() => handleToggleLink(link.id)}
+                            />
+                            <span className="slider-small"></span>
+                            </label>
+                            
+                            <button 
+                            className="btn-icon-small"
+                            onClick={() => handleEditingLink(link)}
+                            >
+                            <i className="bi bi-pencil"></i>
+                            </button>
+                            
+                            <button 
+                            className="btn-icon-small btn-delete-small"
+                            onClick={() => handleDeleteLink(link.id)}
+                            >
+                            <i className="bi bi-trash"></i>
+                            </button>
+                        </div>
+                        </div>
+                    ))}
                     </div>
+                </>
                 )}
+
+                {/* TAB CONTENT - Appearance */}
+                {activeTab === 'appearance' && (
+                <div className="tab-content-appearance">
+                    <h3>Appearance Settings</h3>
+                    
+                    {/* Background Type Selector */}
+                    <div className="custom-option">
+                    <label>Background Type</label>
+                    <div className="background-type-selector">
+                        <button
+                        className={`type-btn ${customization.backgroundType === 'color' ? 'active' : ''}`}
+                        onClick={() => setCustomization({
+                            ...customization,
+                            backgroundType: 'color'
+                        })}
+                        >
+                        <i className="bi bi-palette"></i>
+                        Color
+                        </button>
+                        <button
+                        className={`type-btn ${customization.backgroundType === 'image' ? 'active' : ''}`}
+                        onClick={() => setCustomization({
+                            ...customization,
+                            backgroundType: 'image'
+                        })}
+                        >
+                        <i className="bi bi-image"></i>
+                        Image
+                        </button>
+                    </div>
+                    </div>
+
+                    {/* Background Color */}
+                    {customization.backgroundType === 'color' && (
+                    <div className="custom-option">
+                        <label>Background Color</label>
+                        <input 
+                        type="color" 
+                        value={customization.backgroundColor}
+                        onChange={(e) => setCustomization({
+                            ...customization,
+                            backgroundColor: e.target.value
+                        })}
+                        />
+                    </div>
+                    )}
+
+                    {/* Background Image */}
+                    {customization.backgroundType === 'image' && (
+                    <div className="custom-option">
+                        <label>Background Image</label>
+                        {!customization.backgroundImage ? (
+                        <div className="image-upload-area">
+                            <input
+                            type="file"
+                            id="bg-image-upload"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            style={{ display: 'none' }}
+                            />
+                            <label htmlFor="bg-image-upload" className="upload-label">
+                            <i className="bi bi-cloud-upload"></i>
+                            <span>Click to upload image</span>
+                            <small>PNG, JPG up to 5MB</small>
+                            </label>
+                        </div>
+                        ) : (
+                        <div className="image-preview-container">
+                            <img 
+                            src={customization.backgroundImage} 
+                            alt="Background" 
+                            className="background-preview-img"
+                            />
+                            <button 
+                            className="btn-remove-image"
+                            onClick={handleRemoveBackgroundImage}
+                            >
+                            <i className="bi bi-trash"></i>
+                            Remove Image
+                            </button>
+                        </div>
+                        )}
+                    </div>
+                    )}
+
+                    {/* Button Color */}
+                    <div className="custom-option">
+                    <label>Button Color</label>
+                    <input 
+                        type="color" 
+                        value={customization.buttonColor}
+                        onChange={(e) => setCustomization({
+                        ...customization,
+                        buttonColor: e.target.value
+                        })}
+                    />
+                    </div>
+
+                    {/* Button Style */}
+                    <div className="custom-option">
+                    <label>Button Style</label>
+                    <select 
+                        value={customization.buttonStyle}
+                        onChange={(e) => setCustomization({
+                        ...customization,
+                        buttonStyle: e.target.value
+                        })}
+                    >
+                        <option value="rounded">Rounded</option>
+                        <option value="square">Square</option>
+                        <option value="pill">Pill</option>
+                    </select>
+                    </div>
                 </div>
-            )}
+                )}
 
-            <div className="custom-option">
-                <label>Button Color</label>
-                <input 
-                type="color" 
-                value={customization.buttonColor}
-                onChange={(e) => setCustomization({
-                    ...customization,
-                    buttonColor: e.target.value
-                })}
-                />
-            </div>
+                {/* TAB CONTENT - Settings */}
+                {activeTab === 'settings' && (
+                <div className="tab-content-settings">
+                    <h3>Settings</h3>
+                    <p style={{ color: '#718096', textAlign: 'center', marginTop: '2rem' }}>
+                    Settings options coming soon...
+                    </p>
+                </div>
+                )}
 
-            <div className="custom-option">
-                <label>Button Style</label>
-                <select 
-                value={customization.buttonStyle}
-                onChange={(e) => setCustomization({
-                    ...customization,
-                    buttonStyle: e.target.value
-                })}
-                >
-                <option value="rounded">Rounded</option>
-                <option value="square">Square</option>
-                <option value="pill">Pill</option>
-                </select>
-            </div>
-            </div>
-
-              {/* Save Button */}
-              <button className="btn-save-changes">
+                {/* Save Button - Prikaži na svim tabovima */}
+                <button className="btn-save-changes">
                 <i className="bi bi-check-lg"></i>
                 Save Changes
-              </button>
+                </button>
             </div>
 
             {/* Right Side - Live Preview */}

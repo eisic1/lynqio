@@ -85,6 +85,21 @@
   font-size: 1.1rem;
 }
 
+.tab-content-appearance,
+.tab-content-settings {
+  margin-top: 1.5rem;
+}
+
+.tab-content-appearance h3,
+.tab-content-settings h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
 /* Add Link Button */
 .btn-add-link {
   width: 100%;
