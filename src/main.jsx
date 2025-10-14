@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 import { ProfileProvider } from './context/ProfileContext.jsx'
-import { ToastProvider } from './components/ToastContainer.jsx';
+import { ToastProvider } from './components/toast/ToastContainer.jsx';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';

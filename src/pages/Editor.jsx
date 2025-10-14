@@ -1,6 +1,9 @@
 import { useState } from 'react';
+import { useToast } from '../components/toast/ToastContainer';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
+import ConfirmModal from '../components/ConfirmModal';
+import LoadingSpinner from '../components/LoadingSpinner';
 import '../styles/Editor.css';
 
 function Editor() {
@@ -27,6 +30,11 @@ function Editor() {
       active: true
     },
   ]);
+
+  const toast = useToast();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [linkToDelete, setLinkToDelete] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [customization, setCustomization] = useState({
     backgroundColor: '#ffffff',
@@ -73,37 +81,51 @@ function Editor() {
   // Add new linka
   const handleAddLink = () => {
     if (newLink.title && newLink.url) {
+      setIsLoading(true);
+      
+      // Simulate API call
+      setTimeout(() => {
         if (newLink.id) {
-            // EDIT MODE - Update link
-            setLinks(links.map(link => 
-                link.id === newLink.id 
-                ? { ...newLink } 
-                : link
-            ));
+          // EDIT MODE
+          setLinks(links.map(link => 
+            link.id === newLink.id ? { ...newLink } : link
+          ));
+          toast.showSuccess('✅ Link updated successfully!');
         } else {
-            // ADD MODE - Add new link
-            setLinks([...links, { 
-                id: Date.now(), 
-                ...newLink, 
-                active: true 
-            }]);
+          // ADD MODE
+          setLinks([...links, { 
+            id: Date.now(), 
+            ...newLink, 
+            active: true 
+          }]);
+          toast.showSuccess('✅ Link added successfully!');
         }
         
-        // Reset form and close modal
         setNewLink({ title: '', url: '', icon: 'bi-link-45deg' });
         setShowAddModal(false);
+        setIsLoading(false);
+      }, 500);
+    } else {
+      toast.showError('❌ Please fill in all fields');
     }
   };
 
   const handleEditingLink = (link) => {
-    console.log('DANAS JE DIVAN DAN', link)
     setShowAddModal(true);
     setNewLink({ id: link.id, title: link.title, url: link.url, icon: link.icon, active: link.active });
   };
 
   // Remove linka
   const handleDeleteLink = (id) => {
-    setLinks(links.filter(link => link.id !== id));
+    setLinkToDelete(id);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = () => {
+    setLinks(links.filter(link => link.id !== linkToDelete));
+    toast.showSuccess('🗑️ Link deleted successfully');
+    setShowDeleteConfirm(false);
+    setLinkToDelete(null);
   };
 
   // Toggle activities linka
@@ -527,6 +549,24 @@ function Editor() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Confirm Delete Modal */}
+      {showDeleteConfirm && (
+        <ConfirmModal
+          title="Delete Link?"
+          message="Are you sure you want to delete this link? This action cannot be undone."
+          onConfirm={() => {
+            confirmDelete(linkToDelete);
+          }}
+          onCancel={() => {
+            setShowDeleteConfirm(false);
+            setLinkToDelete(null);
+          }}
+          confirmText="Delete"
+          cancelText="Cancel"
+          type="danger"
+        />
       )}
     </div>
   );
