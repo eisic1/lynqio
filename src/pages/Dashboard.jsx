@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useProfile } from '../context/ProfileContext';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
 import StatsCard from '../components/StatsCard';
@@ -6,7 +8,13 @@ import LinkCard from '../components/LinkCard';
 import '../styles/Dashboard.css';
 
 function Dashboard() {
-  // Mock data - kasnije će doći iz backend-a
+  const navigate = useNavigate();
+  const { profileData } = useProfile();
+
+  const handleViewProfile = () => {
+    navigate(`/${profileData.username}`);
+  };
+
   const [links] = useState([
     {
       id: 1,
@@ -59,7 +67,7 @@ function Dashboard() {
               <h1>Welcome back, John! 👋</h1>
               <p>Here's what's happening with your links today</p>
             </div>
-            <button className="btn-primary-gradient">
+            <button className="btn-primary-gradient" onClick={() => navigate('/editor')}>
               <i className="bi bi-plus-lg"></i>
               Add New Link
             </button>
@@ -99,7 +107,7 @@ function Dashboard() {
 
           {/* Quick Actions */}
           <div className="quick-actions">
-            <button className="quick-action-btn">
+            <button className="quick-action-btn" onClick={handleViewProfile}>
               <i className="bi bi-eye"></i>
               <span>View Profile</span>
             </button>

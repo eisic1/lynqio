@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard';
 import Editor from './pages/Editor';
 import PublicProfile from './pages/PublicProfile';
 import Appearance from './pages/Appearance';
+import Settings from './pages/Settings';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/editor" element={<Editor />} />
         <Route path="/:username" element={<PublicProfile />} />
         <Route path="/appearance" element={<Appearance />} />
+        <Route path="/settings" element={<Settings />} />
       </Routes>
     </Router>
   );

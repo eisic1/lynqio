@@ -1,7 +1,9 @@
 import { Link, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import '../styles/Sidebar.css';
 
 function Sidebar() {
+  const navigate = useNavigate();
   const location = useLocation();
 
   const menuItems = [
@@ -39,7 +41,7 @@ function Sidebar() {
           </div>
         </div>
 
-        <button className="btn-logout">
+        <button className="btn-logout" onClick={() => navigate('/login')}>
           <i className="bi bi-box-arrow-right"></i>
           <span>Logout</span>
         </button>
