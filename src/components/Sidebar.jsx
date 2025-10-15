@@ -1,10 +1,38 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+import { useProfile } from '../context/ProfileContext';
+import { useToast } from '../components/toast/ToastContainer';
 import '../styles/Sidebar.css';
 
 function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { profileData } = useProfile();
+  const toast = useToast();
+
+  const handleCopyLink = async () => {
+    const profileUrl = `${window.location.origin}/${profileData.username}`;
+    
+    try {
+      await navigator.clipboard.writeText(profileUrl);
+      toast.showSuccess('🔗 Link copied to clipboard!');
+    } catch (err) {
+      // Fallback for old browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = profileUrl;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        toast.showSuccess('🔗 Link copied to clipboard!');
+      } catch (err) {
+        toast.showError('❌ Failed to copy link');
+      }
+      document.body.removeChild(textArea);
+    }
+  };
 
   const menuItems = [
     { path: '/dashboard', icon: 'bi-grid', label: 'Dashboard' },
@@ -34,8 +62,8 @@ function Sidebar() {
           <p className="preview-label">Your Link</p>
           <div className="preview-url">
             <i className="bi bi-link-45deg"></i>
-            <span>lynqio.com/johndoe</span>
-            <button className="btn-copy" title="Copy Link">
+            <span>lynqio.com/{profileData.username}</span>
+            <button className="btn-copy" title="Copy Link" onClick={handleCopyLink}>
               <i className="bi bi-clipboard"></i>
             </button>
           </div>
