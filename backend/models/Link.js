@@ -1,0 +1,151 @@
+const pool = require('../config/database');
+
+class Link {
+  
+  // Kreiranje novog linka
+  static async create(profileId, data) {
+    try {
+      const { title, url, description, icon } = data;
+      
+      // Get next position
+      const positionQuery = `
+        SELECT COALESCE(MAX(position), 0) + 1 as next_position 
+        FROM links 
+        WHERE profile_id = $1
+      `;
+      const positionResult = await pool.query(positionQuery, [profileId]);
+      const position = positionResult.rows[0].next_position;
+      
+      const query = `
+        INSERT INTO links (profile_id, title, url, description, icon, position)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING *
+      `;
+      
+      const values = [profileId, title, url, description, icon, position];
+      const result = await pool.query(query, values);
+      
+      return result.rows[0];
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Get all links for profile
+  static async findByProfileId(profileId) {
+    try {
+      const query = `
+        SELECT * FROM links 
+        WHERE profile_id = $1 
+        ORDER BY position ASC
+      `;
+      
+      const result = await pool.query(query, [profileId]);
+      return result.rows;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Get single link by ID
+  static async findById(linkId) {
+    try {
+      const query = `SELECT * FROM links WHERE id = $1`;
+      const result = await pool.query(query, [linkId]);
+      return result.rows[0];
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Update link
+  static async update(linkId, data) {
+    try {
+      const { title, url, description, icon, is_active } = data;
+      
+      const query = `
+        UPDATE links 
+        SET title = COALESCE($1, title),
+            url = COALESCE($2, url),
+            description = COALESCE($3, description),
+            icon = COALESCE($4, icon),
+            is_active = COALESCE($5, is_active),
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = $6
+        RETURNING *
+      `;
+      
+      const values = [title, url, description, icon, is_active, linkId];
+      const result = await pool.query(query, values);
+      
+      return result.rows[0];
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Delete link
+  static async delete(linkId) {
+    try {
+      const query = `DELETE FROM links WHERE id = $1 RETURNING *`;
+      const result = await pool.query(query, [linkId]);
+      return result.rows[0];
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Reorder links
+  static async reorder(profileId, linkPositions) {
+    const client = await pool.connect();
+    
+    try {
+      await client.query('BEGIN');
+      
+      for (const { id, position } of linkPositions) {
+        await client.query(
+          'UPDATE links SET position = $1 WHERE id = $2 AND profile_id = $3',
+          [position, id, profileId]
+        );
+      }
+      
+      await client.query('COMMIT');
+      return true;
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
+  // Increment click count
+  static async incrementClicks(linkId) {
+    try {
+      const query = `
+        UPDATE links 
+        SET click_count = click_count + 1 
+        WHERE id = $1
+        RETURNING *
+      `;
+      
+      const result = await pool.query(query, [linkId]);
+      return result.rows[0];
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Check if link belongs to profile
+  static async belongsToProfile(linkId, profileId) {
+    try {
+      const query = `SELECT id FROM links WHERE id = $1 AND profile_id = $2`;
+      const result = await pool.query(query, [linkId, profileId]);
+      return result.rows.length > 0;
+    } catch (error) {
+      throw error;
+    }
+  }
+}
+
+module.exports = Link;
