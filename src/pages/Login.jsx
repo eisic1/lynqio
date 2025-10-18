@@ -1,16 +1,39 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { authAPI } from '../api/auth';
+import { useToast } from '../components/toast/ToastContainer';
 import '../styles/Login.css';
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+  const toast = useToast();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Login attempt:', { email, password });
-    // Ovdje će kasnije biti backend logika
+    
+    try {
+      const response = await authAPI.login({
+        email: email,
+        password: password
+      });
+
+      if (response.success) {
+        // Sačuvaj token i user u localStorage
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        
+        // Redirect na dashboard
+        toast.showSuccess('Login successful!');
+        navigate('/dashboard'); // ako koristiš useNavigate
+      }
+    } catch (error) {
+      console.log('ERROR', error)
+      const errorMessage = 'Login failed';
+      toast.showError(errorMessage);
+    }
   };
 
   return (

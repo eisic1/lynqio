@@ -9,6 +9,7 @@ export const authAPI = {
 
   // Login
   login: async (credentials) => {
+    console.log('DANAS', credentials)
     const response = await axios.post('/auth/login', credentials);
     return response.data;
   },

@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useProfile } from '../context/ProfileContext';
-import { useToast } from '../components/toast/ToastContainer';
+import { useToast } from './toast/ToastContainer';
 import '../styles/Sidebar.css';
 
 function Sidebar() {
