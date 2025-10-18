@@ -47,6 +47,8 @@ app.get('/api/test', async (req, res) => {
 
 // API Routes
 app.use('/api/auth', require('./routes/auth'));
+app.use('/api/profile', require('./routes/profile'));
+app.use('/api/links', require('./routes/link'));
 
 // 404 handler - mora biti nakon svih ruta
 app.use((req, res) => {
@@ -73,6 +75,11 @@ app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📍 http://localhost:${PORT}`);
   console.log(`🔐 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log('=================================');
+  console.log('📚 Available Routes:');
+  console.log('   Auth:    /api/auth');
+  console.log('   Profile: /api/profile');
+  console.log('   Links:   /api/links');
   console.log('=================================');
   console.log('');
 });
