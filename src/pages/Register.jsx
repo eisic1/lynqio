@@ -1,8 +1,13 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { authAPI } from '../api/auth';
+import { useToast } from '../components/toast/ToastContainer';
 import '../styles/Register.css';
 
 function Register() {
+  const navigate = useNavigate();
+  const toast = useToast();
+
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -20,10 +25,35 @@ function Register() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Register attempt:', formData);
-    // Ovdje će kasnije biti backend logika
+    
+    try {
+      formData['username'] = formData.email.split('@')[0];
+      // Poziv backend API-ja
+      const response = await authAPI.register({
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        full_name: formData.fullName
+      });
+
+      if (response.success) {
+        // Sačuvaj token i user
+        //localStorage.setItem('token', response.data.token);
+        //localStorage.setItem('user', JSON.stringify(response.data.user));
+        
+        toast.showSuccess('Registration successful!');
+        console.log('DANAS JE DIVAN DAN')
+        
+        // Redirect na dashboard
+        navigate('/login');
+      }
+    } catch (error) {
+      console.log('REGISTRATION ERROR:', error);
+      const errorMessage = error.response?.data?.message || 'Registration failed';
+      toast.showError(errorMessage);
+    }
   };
 
   return (
