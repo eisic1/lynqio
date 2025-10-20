@@ -3,7 +3,7 @@ const pool = require('../config/database');
 class Profile {
   
   // Kreiranje profila za novog korisnika
-  static async create(userId, slug) {
+  static async create(userId, slug, full_name) {
     try {
       const query = `
         INSERT INTO profiles (user_id, slug, title, is_public)
@@ -11,8 +11,8 @@ class Profile {
         RETURNING *
       `;
       
-      const title = `@${slug}'s Links`;
-      const values = [userId, slug, title];
+      //const title = `@${full_name}'s Links`;
+      const values = [userId, slug, full_name];
       const result = await pool.query(query, values);
       
       return result.rows[0];

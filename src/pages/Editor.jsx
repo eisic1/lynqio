@@ -9,30 +9,6 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import '../styles/Editor.css';
 
 function Editor() {
-  /*const [links, setLinks] = useState([
-    {
-      id: 1,
-      title: 'My Portfolio',
-      url: 'https://johndoe.com',
-      icon: 'bi-briefcase',
-      active: true
-    },
-    {
-      id: 2,
-      title: 'Instagram',
-      url: 'https://instagram.com/johndoe',
-      icon: 'bi-instagram',
-      active: true
-    },
-    {
-      id: 3,
-      title: 'YouTube Channel',
-      url: 'https://youtube.com/@johndoe',
-      icon: 'bi-youtube',
-      active: true
-    },
-  ]);*/
-
   const [links, setLinks] = useState([]);
   const [loading, setLoading] = useState(true);
 

@@ -50,7 +50,7 @@ const register = async (req, res) => {
 
     // Auto-kreiraj profil
     const Profile = require('../models/Profile');
-    await Profile.create(user.id, username);
+    await Profile.create(user.id, username, full_name);
 
     // Generate token
     const token = generateToken(user);

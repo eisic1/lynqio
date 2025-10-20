@@ -1,11 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useProfile } from '../context/ProfileContext';
+import { linksAPI } from '../api/links';
+import { profileAPI } from '../api/profile';
+import { useToast } from '../components/toast/ToastContainer';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
 import '../styles/Appearance.css';
 
 function Appearance() {
   const { profileData, setProfileData } = useProfile();
+  let [links, setLinks] = useState([]);
+  const toast = useToast();
+
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   
   const [localProfile, setLocalProfile] = useState({
     displayName: profileData.displayName,
@@ -75,6 +83,63 @@ function Appearance() {
     }
   ];
 
+  useEffect(() => {
+    fetchProfile();
+    fetchLinks();
+  }, []);
+
+  const fetchProfile = async () => {
+    try {
+      setLoading(true);
+      const response = await profileAPI.getMyProfile();
+      
+      if (response.success) {
+        const profile = response.data.profile;
+        
+        // Postavi profile podatke
+        setLocalProfile({
+          displayName: profile.title || '',
+          bio: profile.bio || '',
+          avatar: profile.profile_image_url || 'https://www.svgrepo.com/show/384674/account-avatar-profile-user-11.svg'
+        });
+
+        // Učitaj theme ako postoji
+        if (profile.theme) {
+          try {
+            const savedTheme = JSON.parse(profile.theme);
+            setLocalCustomization(savedTheme);
+          } catch (e) {
+            console.log('Theme is not JSON, using defaults');
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Fetch profile error:', error);
+      toast.showError('Failed to load profile settings');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchLinks = async () => {
+    setLinks([]);
+    try {
+      //setLoading(true);
+      const response = await linksAPI.getMyLinks();
+      
+      if (response.success) {
+        setLinks(response.data.links);
+        links = response.data.links;
+        console.log('DANAS', links);
+      }
+    } catch (error) {
+      console.error('Fetch links error:', error);
+      toast.showError('Failed to load links');
+    } finally {
+      //setLoading(false);
+    }
+  };
+
   // Handle profile image upload
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -85,6 +150,8 @@ function Appearance() {
           ...localProfile,
           avatar: reader.result
         });
+
+        localProfile.avatar = reader.result;
       };
       reader.readAsDataURL(file);
     }
@@ -119,15 +186,27 @@ function Appearance() {
   };
 
   // Save all changes
-  const handleSaveChanges = () => {
-    setProfileData({
-      ...profileData,
-      displayName: localProfile.displayName,
-      bio: localProfile.bio,
-      avatar: localProfile.avatar,
-      customization: localCustomization
-    });
-    alert('✅ Changes saved successfully!');
+  const handleSaveChanges = async () => {
+    try {
+      setSaving(true);
+      
+      const response = await profileAPI.updateProfile({
+        title: localProfile.displayName,
+        bio: localProfile.bio,
+        profile_image_url: localProfile.avatar,
+        theme: JSON.stringify(localCustomization)
+      });
+
+      if (response.success) {
+        toast.showSuccess('✨ Appearance saved successfully!');
+      }
+    } catch (error) {
+      console.error('Save appearance error:', error);
+      const errorMessage = error.response?.data?.message || 'Failed to save changes';
+      toast.showError(errorMessage);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -444,79 +523,88 @@ function Appearance() {
               </button>
             </div>
 
-            {/* Preview Panel */}
-            <div className="appearance-preview-panel">
-              <div className="preview-header">
-                <h3>Live Preview</h3>
-                <div className="preview-device-selector">
-                  <button
-                    className={`device-btn ${previewDevice === 'mobile' ? 'active' : ''}`}
-                    onClick={() => setPreviewDevice('mobile')}
-                  >
-                    <i className="bi bi-phone"></i>
-                  </button>
-                  <button
-                    className={`device-btn ${previewDevice === 'desktop' ? 'active' : ''}`}
-                    onClick={() => setPreviewDevice('desktop')}
-                  >
-                    <i className="bi bi-display"></i>
-                  </button>
+            {/* Right Side - Live Preview */}
+            <div className="preview-panel">
+                <div className="preview-header">
+                    <h3>Live Preview</h3>
+                    <div className="preview-actions">
+                    <button 
+                        className={`btn-preview-action ${previewDevice === 'mobile' ? 'active' : ''}`}
+                        onClick={() => setPreviewDevice('mobile')}
+                        title="Mobile"
+                    >
+                        <i className="bi bi-phone"></i>
+                    </button>
+                    <button 
+                        className={`btn-preview-action ${previewDevice === 'tablet' ? 'active' : ''}`}
+                        onClick={() => setPreviewDevice('tablet')}
+                        title="Tablet"
+                    >
+                        <i className="bi bi-tablet"></i>
+                    </button>
+                    <button 
+                        className={`btn-preview-action ${previewDevice === 'desktop' ? 'active' : ''}`}
+                        onClick={() => setPreviewDevice('desktop')}
+                        title="Desktop"
+                    >
+                        <i className="bi bi-display"></i>
+                    </button>
+                    </div>
                 </div>
-              </div>
 
-              <div className={`preview-wrapper preview-${previewDevice}`}>
-                <div 
-                  className="preview-screen"
-                  style={{
-                    backgroundColor: localCustomization.backgroundType === 'color' 
-                      ? localCustomization.backgroundColor 
-                      : 'transparent',
-                    backgroundImage: localCustomization.backgroundType === 'image' && localCustomization.backgroundImage
-                      ? `url(${localCustomization.backgroundImage})`
-                      : 'none',
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    color: localCustomization.textColor || '#2d3748',
-                    fontFamily: localCustomization.font
-                  }}
-                >
-                  {/* Profile */}
-                  <div className="preview-profile-section">
-                    <img 
-                      src={localProfile.avatar}
-                      alt="Profile"
-                      className="preview-avatar-img"
-                    />
-                    <h2 style={{ color: localCustomization.textColor }}>{localProfile.displayName}</h2>
-                    <p style={{ color: localCustomization.textColor, opacity: 0.8 }}>{localProfile.bio}</p>
-                  </div>
+                <div className={`preview-device preview-${previewDevice}`}>
+                    <div 
+                    className="preview-content"
+                    style={{ 
+                        backgroundColor: localCustomization.backgroundType === 'color' 
+                            ? localCustomization.backgroundColor 
+                            : 'transparent',
+                        backgroundImage: localCustomization.backgroundType === 'image' && localCustomization.backgroundImage
+                            ? `url(${localCustomization.backgroundImage})`
+                            : 'none',
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat'
+                    }}
+                    >
+                    {/* Profile Section */}
+                    <div className="preview-profile">
+                        <img 
+                        src={localProfile.avatar} 
+                        alt="Profile"
+                        className="preview-avatar"
+                        />
+                        <h2>{localProfile.displayName}</h2>
+                        <p>{localProfile.bio}</p>
+                    </div>
 
-                  {/* Sample Links */}
-                  <div className="preview-links-section">
-                    {['My Portfolio', 'Instagram', 'YouTube'].map((link, index) => (
-                      <div
-                        key={index}
-                        className={`preview-link-item ${localCustomization.buttonStyle}`}
-                        style={{
-                          backgroundColor: localCustomization.buttonColor,
-                          borderRadius: localCustomization.buttonStyle === 'pill' ? '50px' :
-                                       localCustomization.buttonStyle === 'square' ? '8px' : '12px'
-                        }}
-                      >
-                        <i className="bi bi-link-45deg"></i>
-                        <span>{link}</span>
-                      </div>
-                    ))}
-                  </div>
+                    {/* Links Preview */}
+                    <div className="preview-links">
+                        {links.filter(link => link.is_active).map((link) => (
+                        <a
+                            key={link.id}
+                            href={link.url}
+                            className={`preview-link-btn ${localCustomization.buttonStyle}`}
+                            style={{ 
+                            backgroundColor: localCustomization.buttonColor,
+                            borderRadius: localCustomization.buttonStyle === 'pill' ? '50px' : 
+                                        localCustomization.buttonStyle === 'square' ? '8px' : '12px'
+                            }}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <i className={`bi ${link.icon}`}></i>
+                            <span>{link.title}</span>
+                        </a>
+                        ))}
+                    </div>
 
-                  {/* Footer */}
-                  <div className="preview-footer-section">
-                    <p style={{ color: localCustomization.textColor, opacity: 0.6 }}>
-                      Powered by <strong>Lynqio</strong>
-                    </p>
-                  </div>
+                    {/* Footer */}
+                    <div className="preview-footer">
+                        <p>Powered by <strong>Lynqio</strong></p>
+                    </div>
+                    </div>
                 </div>
-              </div>
             </div>
 
           </div>
