@@ -1,13 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from '../components/toast/ToastContainer';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
 import ConfirmModal from '../components/ConfirmModal';
+import { linksAPI } from '../api/links';
+import { profileAPI } from '../api/profile';
 import LoadingSpinner from '../components/LoadingSpinner';
 import '../styles/Editor.css';
 
 function Editor() {
-  const [links, setLinks] = useState([
+  /*const [links, setLinks] = useState([
     {
       id: 1,
       title: 'My Portfolio',
@@ -29,12 +31,23 @@ function Editor() {
       icon: 'bi-youtube',
       active: true
     },
-  ]);
+  ]);*/
+
+  const [links, setLinks] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch linkova pri učitavanju
+  useEffect(() => {
+    fetchLinks();
+    fetchProfileSettings();
+  }, []);
 
   const toast = useToast();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [linkToDelete, setLinkToDelete] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const [savingAppearance, setSavingAppearance] = useState(false);
 
   const [customization, setCustomization] = useState({
     backgroundColor: '#ffffff',
@@ -42,8 +55,26 @@ function Editor() {
     backgroundType: 'color',
     buttonColor: '#667eea',
     buttonStyle: 'rounded',
-    font: 'inter'
+    font: 'inter',
+    textColor: '#2d3748',
   });
+
+  const fetchLinks = async () => {
+    setLinks([]);
+    try {
+      setLoading(true);
+      const response = await linksAPI.getMyLinks();
+      
+      if (response.success) {
+        setLinks(response.data.links);
+      }
+    } catch (error) {
+      console.error('Fetch links error:', error);
+      toast.showError('Failed to load links');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -78,35 +109,53 @@ function Editor() {
     icon: 'bi-link-45deg'
   });
 
-  // Add new linka
-  const handleAddLink = () => {
-    if (newLink.title && newLink.url) {
-      setIsLoading(true);
-      
-      // Simulate API call
-      setTimeout(() => {
-        if (newLink.id) {
-          // EDIT MODE
-          setLinks(links.map(link => 
-            link.id === newLink.id ? { ...newLink } : link
-          ));
-          toast.showSuccess('✅ Link updated successfully!');
-        } else {
-          // ADD MODE
-          setLinks([...links, { 
-            id: Date.now(), 
-            ...newLink, 
-            active: true 
-          }]);
-          toast.showSuccess('✅ Link added successfully!');
+  const handleAddLink = async () => {
+    if (!newLink.title || !newLink.url) {
+      toast.showError('Please fill in all fields');
+      return;
+    }
+
+    try {
+      if (newLink.id) {
+        // EDIT MODE - Update postojećeg linka
+        const response = await linksAPI.updateLink(newLink.id, {
+          title: newLink.title,
+          url: newLink.url,
+          icon: newLink.icon
+        });
+
+        if (response.success) {
+          // Ažuriraj u state
+          /*setLinks(links.map(link => 
+            link.id === newLink.id ? response.data.link : link
+          ));*/
+          fetchLinks();
+          toast.showSuccess('Link updated successfully!');
         }
-        
-        setNewLink({ title: '', url: '', icon: 'bi-link-45deg' });
-        setShowAddModal(false);
-        setIsLoading(false);
-      }, 500);
-    } else {
-      toast.showError('❌ Please fill in all fields');
+      } else {
+        // ADD MODE - Kreiranje novog linka
+        const response = await linksAPI.createLink({
+          title: newLink.title,
+          url: newLink.url,
+          icon: newLink.icon
+        });
+
+        if (response.success) {
+          // Dodaj u state
+          //setLinks([...links, response.data.link]);
+          fetchLinks();
+          toast.showSuccess('Link added successfully!');
+        }
+      }
+
+      // Reset form i zatvori modal
+      setNewLink({ title: '', url: '', icon: 'bi-link-45deg' });
+      setShowAddModal(false);
+
+    } catch (error) {
+      console.error('Add/Update link error:', error);
+      const errorMessage = error.response?.data?.message || 'Operation failed';
+      toast.showError(errorMessage);
     }
   };
 
@@ -121,18 +170,40 @@ function Editor() {
     setShowDeleteConfirm(true);
   };
 
-  const confirmDelete = () => {
-    setLinks(links.filter(link => link.id !== linkToDelete));
-    toast.showSuccess('🗑️ Link deleted successfully');
-    setShowDeleteConfirm(false);
-    setLinkToDelete(null);
+  const confirmDelete = async () => {
+    try {
+      const response = await linksAPI.deleteLink(linkToDelete);
+
+      if (response.success) {
+        // Ukloni iz state
+        fetchLinks();
+        toast.showSuccess('🗑️ Link deleted successfully');
+        setShowDeleteConfirm(false);
+        setLinkToDelete(null);
+      }
+    } catch (error) {
+      console.error('Delete link error:', error);
+      toast.showError('Failed to delete link');
+      setShowDeleteConfirm(false);
+      setLinkToDelete(null);
+    }
   };
 
   // Toggle activities linka
-  const handleToggleLink = (id) => {
-    setLinks(links.map(link => 
-      link.id === id ? { ...link, active: !link.active } : link
-    ));
+  const handleToggleLink = async (linkId, currentStatus) => {
+    try {
+      const response = await linksAPI.updateLink(linkId, {
+        is_active: !currentStatus
+      });
+
+      if (response.success) {
+        fetchLinks();
+        toast.showSuccess(`Link ${!currentStatus ? 'activated' : 'deactivated'}`);
+      }
+    } catch (error) {
+      console.error('Toggle active error:', error);
+      toast.showError('Failed to update link');
+    }
   };
 
   // Drag and Drop
@@ -145,13 +216,81 @@ function Editor() {
     e.preventDefault();
   };
 
-  const handleDrop = (e, dropIndex) => {
+  const handleDrop = async (e, dropIndex) => {
     const dragIndex = parseInt(e.dataTransfer.getData('text/html'));
+    if (dragIndex === dropIndex) return; // Ista pozicija, ne radi ništa
+
     const draggedLink = links[dragIndex];
     const newLinks = [...links];
     newLinks.splice(dragIndex, 1);
     newLinks.splice(dropIndex, 0, draggedLink);
     setLinks(newLinks);
+
+    await syncLinkOrder(newLinks);
+  };
+
+  const syncLinkOrder = async (reorderedLinks) => {
+    try {
+      // Kreiraj array sa {id, position} objektima
+      const linkPositions = reorderedLinks.map((link, index) => ({
+        id: link.id,
+        position: index + 1  // Position počinje od 1
+      }));
+
+      const response = await linksAPI.reorderLinks(linkPositions);
+
+      if (response.success) {
+        toast.showSuccess('Order updated!');
+      }
+    } catch (error) {
+      console.error('Reorder links error:', error);
+      toast.showError('Failed to update order');
+      
+      // Reload linkove da vrati staro stanje
+      fetchLinks();
+    }
+  };
+
+  const handleSaveAppearance = async () => {
+    try {
+      setSavingAppearance(true);
+      
+      const response = await profileAPI.updateProfile({
+        theme: JSON.stringify(customization)
+      });
+
+      if (response.success) {
+        toast.showSuccess('✨ Appearance saved successfully!');
+      }
+    } catch (error) {
+      console.error('Save appearance error:', error);
+      toast.showError('Failed to save appearance');
+    } finally {
+      setSavingAppearance(false);
+    }
+  };
+
+  const fetchProfileSettings = async () => {
+    try {
+      const response = await profileAPI.getMyProfile();
+      
+      if (response.success) {
+        const profile = response.data.profile;
+        
+        // Učitaj customization ako postoji
+        if (profile.theme) {
+          // Ako čuvaš kao JSON string
+          try {
+            const savedCustomization = JSON.parse(profile.theme);
+            setCustomization(savedCustomization);
+          } catch (e) {
+            console.log('Theme is not JSON, using defaults');
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Fetch profile settings error:', error);
+    }
   };
 
   return (
@@ -229,8 +368,8 @@ function Editor() {
                             <label className="switch-small">
                             <input 
                                 type="checkbox" 
-                                checked={link.active}
-                                onChange={() => handleToggleLink(link.id)}
+                                checked={link.is_active}
+                                onChange={() => handleToggleLink(link.id, link.is_active)}
                             />
                             <span className="slider-small"></span>
                             </label>
@@ -382,10 +521,12 @@ function Editor() {
                 )}
 
                 {/* Save Button - Prikaži na svim tabovima */}
-                <button className="btn-save-changes">
-                <i className="bi bi-check-lg"></i>
-                Save Changes
-                </button>
+                {activeTab === 'appearance' && (
+                  <button className="btn-save-changes" onClick={handleSaveAppearance}>
+                  <i className="bi bi-check-lg"></i>
+                  Save Changes
+                  </button>
+                )}
             </div>
 
             {/* Right Side - Live Preview */}
@@ -445,7 +586,7 @@ function Editor() {
 
                     {/* Links Preview */}
                     <div className="preview-links">
-                        {links.filter(link => link.active).map((link) => (
+                        {links.filter(link => link.is_active).map((link) => (
                         <a
                             key={link.id}
                             href={link.url}
