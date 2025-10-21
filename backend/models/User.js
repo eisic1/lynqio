@@ -161,6 +161,45 @@ class User {
       client.release();
     }
   }
+
+  // Change password
+  static async changePassword(userId, currentPassword, newPassword) {
+    try {
+      // Get user sa password_hash
+      const userQuery = `SELECT password_hash FROM users WHERE id = $1`;
+      const userResult = await pool.query(userQuery, [userId]);
+      
+      if (userResult.rows.length === 0) {
+        throw new Error('User not found');
+      }
+      
+      const user = userResult.rows[0];
+      
+      // Verify current password
+      const isPasswordValid = await bcrypt.compare(currentPassword, user.password_hash);
+      
+      if (!isPasswordValid) {
+        throw new Error('Current password is incorrect');
+      }
+      
+      // Hash new password
+      const newPasswordHash = await bcrypt.hash(newPassword, 10);
+      
+      // Update password
+      const updateQuery = `
+        UPDATE users 
+        SET password_hash = $1, updated_at = CURRENT_TIMESTAMP
+        WHERE id = $2
+        RETURNING id
+      `;
+      
+      const result = await pool.query(updateQuery, [newPasswordHash, userId]);
+      
+      return result.rows[0];
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 module.exports = User;

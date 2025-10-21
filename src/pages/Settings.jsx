@@ -213,7 +213,7 @@ function Settings() {
       }
 
       if (formData.newPassword !== formData.confirmPassword) {
-        toast.showError('❌ Passwords do not match');
+        toast.showError('❌ New passwords do not match');
         return;
       }
 
@@ -222,11 +222,15 @@ function Settings() {
         return;
       }
 
+      // Proveri da novi password nije isti kao stari
+      if (formData.currentPassword === formData.newPassword) {
+        toast.showError('❌ New password must be different from current password');
+        return;
+      }
+
       setSaving(true);
 
-      // API poziv za promenu passworda
-      // Backend endpoint još nije kreiran, ali ovako bi izgledalo:
-      /*
+      // API poziv
       const response = await authAPI.changePassword({
         currentPassword: formData.currentPassword,
         newPassword: formData.newPassword
@@ -234,6 +238,7 @@ function Settings() {
 
       if (response.success) {
         toast.showSuccess('✅ Password changed successfully!');
+        
         // Clear password fields
         setFormData({
           ...formData,
@@ -242,21 +247,11 @@ function Settings() {
           confirmPassword: ''
         });
       }
-      */
-
-      // Za sada simulacija
-      toast.showSuccess('✅ Password changed successfully!');
-      setFormData({
-        ...formData,
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
-      });
 
     } catch (error) {
       console.error('Change password error:', error);
       const errorMessage = error.response?.data?.message || 'Failed to change password';
-      toast.showError(errorMessage);
+      toast.showError(`❌ ${errorMessage}`);
     } finally {
       setSaving(false);
     }

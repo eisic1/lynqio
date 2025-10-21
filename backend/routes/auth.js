@@ -5,7 +5,8 @@ const {
   login, 
   getMe, 
   updateProfile ,
-  deleteAccount
+  deleteAccount,
+  changePassword
 } = require('../controllers/authController');
 const { 
   validateRegistration, 
@@ -20,6 +21,7 @@ router.post('/login', validateLogin, login);
 // Protected routes (require authentication)
 router.get('/me', authenticateToken, getMe);
 router.put('/profile', authenticateToken, updateProfile);
+router.put('/password', authenticateToken, changePassword);
 router.delete('/account', authenticateToken, deleteAccount);
 
 module.exports = router;

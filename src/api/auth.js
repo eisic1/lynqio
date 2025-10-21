@@ -26,6 +26,12 @@ export const authAPI = {
     return response.data;
   },
 
+  // Change password
+  changePassword: async (passwordData) => {
+    const response = await axios.put('/auth/password', passwordData);
+    return response.data;
+  },
+
   // Delete account
   deleteAccount: async () => {
     const response = await axios.delete('/auth/account');
