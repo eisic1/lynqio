@@ -134,6 +134,33 @@ class User {
       throw error;
     }
   }
+
+  // Delete user account
+  static async deleteAccount(userId) {
+    const client = await pool.connect();
+    
+    try {
+      await client.query('BEGIN');
+      
+      // Delete će se automatski cascade na profile, links, analytics zbog foreign keys
+      const query = `
+        DELETE FROM users 
+        WHERE id = $1
+        RETURNING id
+      `;
+      
+      const result = await client.query(query, [userId]);
+      
+      await client.query('COMMIT');
+      
+      return result.rows[0];
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
 }
 
 module.exports = User;

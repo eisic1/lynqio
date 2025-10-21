@@ -25,4 +25,11 @@ export const authAPI = {
     const response = await axios.put('/auth/profile', userData);
     return response.data;
   },
+
+  // Delete account
+  deleteAccount: async () => {
+    const response = await axios.delete('/auth/account');
+    return response.data;
+  },
+
 };
