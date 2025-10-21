@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProfile } from '../context/ProfileContext';
 import Navbar from '../components/Navbar';
@@ -9,10 +9,34 @@ import '../styles/Dashboard.css';
 
 function Dashboard() {
   const navigate = useNavigate();
-  const { profileData } = useProfile();
+  const [userData, setUserData] = useState({
+    name: '',
+    username: ''
+  });
 
   const handleViewProfile = () => {
-    navigate(`/${profileData.username}`);
+    navigate(`/${userData.username}`);
+  };
+
+  useEffect(() => {
+    loadUserData();
+  }, []);
+
+  const loadUserData = async () => {
+    try {
+      // Učitaj iz localStorage
+      const userFromStorage = localStorage.getItem('user');
+      if (userFromStorage) {
+        const user = JSON.parse(userFromStorage);
+        
+        setUserData({
+          name: user.full_name || user.username || 'User',
+          username: user.username || ''
+        });
+      }
+    } catch (error) {
+      console.error('Load user data error:', error);
+    }
   };
 
   const [links] = useState([
@@ -64,7 +88,7 @@ function Dashboard() {
           {/* Header sekcija */}
           <div className="dashboard-header">
             <div>
-              <h1>Welcome back, John! 👋</h1>
+              <h1>Welcome back, {userData.name}! 👋</h1>
               <p>Here's what's happening with your links today</p>
             </div>
             <button className="btn-primary-gradient" onClick={() => navigate('/editor')}>

@@ -1,7 +1,48 @@
 import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import '../styles/Navbar.css';
 
 function Navbar() {
+  const [userData, setUserData] = useState({
+    name: '',
+    email: '',
+    avatar: null,
+    username: ''
+  });
+
+  useEffect(() => {
+    loadUserData();
+  }, []);
+
+  const loadUserData = async () => {
+    try {
+      // Učitaj iz localStorage
+      const userFromStorage = localStorage.getItem('user');
+      if (userFromStorage) {
+        const user = JSON.parse(userFromStorage);
+        const name = user.full_name || user.username || 'User'
+        
+        setUserData({
+          name: name,
+          email: user.email || '',
+          avatar: user.avatar_url || `https://ui-avatars.com/api/?name=${name.replace(' ', '+')}&background=667eea&color=fff&size=150`,
+          username: user.username || ''
+        });
+      }
+    } catch (error) {
+      console.error('Load user data error:', error);
+    }
+  };
+
+  const handleUserAvatar = () => {
+    if(userData?.id && userData.avatar_url){
+      return userData.avatar_url;
+    }
+
+    //return `https://ui-avatars.com/api/?name=${userData.full_name.replace(' ', '+')}&background=667eea&color=fff&size=150`
+    return `https://ui-avatars.com/api/?name=${userData.full_name.replace(' ', '+')}&background=667eea&color=fff&size=150`
+  }
+
   return (
     <nav className="dashboard-navbar">
       <div className="navbar-brand">
@@ -29,12 +70,12 @@ function Navbar() {
         
         <div className="user-profile-dropdown">
           <img 
-            src="https://ui-avatars.com/api/?name=John+Doe&background=667eea&color=fff" 
+            src={userData.avatar} 
             alt="User" 
             className="user-avatar"
           />
-          <span className="user-name">John Doe</span>
-          <i className="bi bi-chevron-down"></i>
+          <span className="user-name">{userData?.name}</span>
+          {/*<i className="bi bi-chevron-down"></i>*/}
         </div>
       </div>
     </nav>

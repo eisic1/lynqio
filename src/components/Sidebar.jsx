@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useProfile } from '../context/ProfileContext';
 import { useToast } from './toast/ToastContainer';
+import { useState, useEffect } from 'react';
 import '../styles/Sidebar.css';
 
 function Sidebar() {
@@ -9,9 +10,32 @@ function Sidebar() {
   const location = useLocation();
   const { profileData } = useProfile();
   const toast = useToast();
+  const [userData, setUserData] = useState({
+    username: ''
+  });
+
+  useEffect(() => {
+      loadUserData();
+    }, []);
+  
+    const loadUserData = async () => {
+      try {
+        // Učitaj iz localStorage
+        const userFromStorage = localStorage.getItem('user');
+        if (userFromStorage) {
+          const user = JSON.parse(userFromStorage);
+          
+          setUserData({
+            username: user.username || ''
+          });
+        }
+      } catch (error) {
+        console.error('Load user data error:', error);
+      }
+    };
 
   const handleCopyLink = async () => {
-    const profileUrl = `${window.location.origin}/${profileData.username}`;
+    const profileUrl = `${window.location.origin}/${userData.username}`;
     
     try {
       await navigator.clipboard.writeText(profileUrl);
@@ -33,6 +57,15 @@ function Sidebar() {
       document.body.removeChild(textArea);
     }
   };
+
+  const handleLogout = () => {
+    // Clear localStorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+
+    // Redirect to login
+    navigate('/login')
+  }
 
   const menuItems = [
     { path: '/dashboard', icon: 'bi-grid', label: 'Dashboard' },
@@ -62,14 +95,14 @@ function Sidebar() {
           <p className="preview-label">Your Link</p>
           <div className="preview-url">
             <i className="bi bi-link-45deg"></i>
-            <span>lynqio.com/{profileData.username}</span>
+            <span>lynqio.com/{userData.username}</span>
             <button className="btn-copy" title="Copy Link" onClick={handleCopyLink}>
               <i className="bi bi-clipboard"></i>
             </button>
           </div>
         </div>
 
-        <button className="btn-logout" onClick={() => navigate('/login')}>
+        <button className="btn-logout" onClick={handleLogout}>
           <i className="bi bi-box-arrow-right"></i>
           <span>Logout</span>
         </button>
