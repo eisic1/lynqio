@@ -10,6 +10,7 @@ function Register() {
 
   const [formData, setFormData] = useState({
     fullName: '',
+    username: '',
     email: '',
     password: '',
     confirmPassword: ''
@@ -27,9 +28,20 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validacija username-a
+    if (!formData.username || formData.username.length < 3) {
+      toast.showError('Username must be at least 3 characters');
+      return;
+    }
+
+    /*if (usernameAvailable === false) {
+      toast.showError('Username is already taken. Please choose another.');
+      return;
+    }*/
     
     try {
-      formData['username'] = formData.email.split('@')[0];
+      //formData['username'] = formData.email.split('@')[0];
       // Poziv backend API-ja
       const response = await authAPI.register({
         username: formData.username,
@@ -118,6 +130,27 @@ function Register() {
                   value={formData.fullName}
                   onChange={handleChange}
                   required
+                />
+              </div>
+            </div>
+
+            <div className="mb-3">
+              <label htmlFor="username" className="form-label">Username</label>
+              <div className="input-group">
+                <span className="input-group-text">
+                  <i className="bi bi-at"></i>
+                </span>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="username"
+                  name="username"
+                  placeholder="yourusername"
+                  value={formData.username}
+                  onChange={handleChange}
+                  required
+                  pattern="[a-z0-9-]{3,50}"
+                  title="Username: 3-50 characters, lowercase letters, numbers, and hyphens only"
                 />
               </div>
             </div>
@@ -214,7 +247,7 @@ function Register() {
             </button>
           </form>
 
-          <div className="divider">
+          {/*<div className="divider">
             <span>OR</span>
           </div>
 
@@ -227,7 +260,7 @@ function Register() {
               <i className="bi bi-facebook"></i>
               Sign up with Facebook
             </button>
-          </div>
+          </div>*/}
 
           <div className="login-link">
             Already have an account? <Link to="/login">Login</Link>

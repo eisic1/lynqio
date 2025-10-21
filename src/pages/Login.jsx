@@ -137,7 +137,7 @@ function Login() {
             </button>
           </form>
 
-          <div className="divider">
+          {/*<div className="divider">
             <span>OR</span>
           </div>
 
@@ -150,7 +150,7 @@ function Login() {
               <i className="bi bi-facebook"></i>
               Continue with Facebook
             </button>
-          </div>
+          </div> */}
 
           <div className="signup-link">
             Don't have an account? <Link to="/register">Sign up</Link>
