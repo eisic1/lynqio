@@ -20,10 +20,25 @@ function Register() {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    const { name, value } = e.target;
+    
+    // Za username - sanitize input
+    if (name === 'username') {
+      // Automatski pretvori u lowercase i dozvoli samo slova, brojeve i crtice
+      const sanitizedValue = value
+        .toLowerCase()
+        .replace(/[^a-z0-9-]/g, '');
+      
+      setFormData({
+        ...formData,
+        [name]: sanitizedValue
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value
+      });
+    }
   };
 
   const handleSubmit = async (e) => {
