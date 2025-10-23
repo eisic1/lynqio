@@ -49,6 +49,7 @@ app.get('/api/test', async (req, res) => {
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/profile', require('./routes/profile'));
 app.use('/api/links', require('./routes/link'));
+app.use('/api/analytics', require('./routes/analytics'));
 
 // 404 handler - mora biti nakon svih ruta
 app.use((req, res) => {
