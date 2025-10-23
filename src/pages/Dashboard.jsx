@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProfile } from '../context/ProfileContext';
+import { QRCodeCanvas } from 'qrcode.react';
+import { profileAPI } from '../api/profile';
+import { useToast } from '../components/toast/ToastContainer';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
 import StatsCard from '../components/StatsCard';
@@ -9,10 +12,12 @@ import '../styles/Dashboard.css';
 
 function Dashboard() {
   const navigate = useNavigate();
+  const toast = useToast();
   const [userData, setUserData] = useState({
     name: '',
     username: ''
   });
+  const [showQRModal, setShowQRModal] = useState(false);
 
   const handleViewProfile = () => {
     navigate(`/${userData.username}`);
@@ -38,6 +43,30 @@ function Dashboard() {
       console.error('Load user data error:', error);
     }
   };
+
+  const handleShowQR = () => {
+    setShowQRModal(true);
+  };
+
+  const handleDownloadQR = () => {
+    const canvas = document.getElementById('qr-code-canvas');
+    if (canvas) {
+      const url = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.download = `${userData.username}-qr-code.png`;
+      link.href = url;
+      link.click();
+      toast.showSuccess('✅ QR Code downloaded!');
+    }
+  };
+
+  const handleCopyQRLink = () => {
+    const profileUrl = `${window.location.origin}/${userData.username}`;
+    navigator.clipboard.writeText(profileUrl);
+    toast.showSuccess('🔗 Profile link copied to clipboard!');
+  };
+
+  const profileUrl = `${window.location.origin}/${userData.username}`;
 
   const [links] = useState([
     {
@@ -135,9 +164,13 @@ function Dashboard() {
               <i className="bi bi-eye"></i>
               <span>View Profile</span>
             </button>
-            <button className="quick-action-btn">
+            {/*<button className="quick-action-btn">
               <i className="bi bi-share"></i>
               <span>Share Link</span>
+            </button>*/}
+            <button className="quick-action-btn" onClick={handleShowQR}>
+              <i className="bi bi-qr-code"></i>
+              <span>QR Code</span>
             </button>
             <button className="quick-action-btn">
               <i className="bi bi-download"></i>
@@ -169,6 +202,59 @@ function Dashboard() {
           </div>
         </main>
       </div>
+
+      {/* QR Code Modal - DODAJ OVO */}
+      {showQRModal && (
+        <div className="modal-overlay" onClick={() => setShowQRModal(false)}>
+          <div className="qr-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="qr-modal-header">
+              <h2>Profile QR Code</h2>
+              <button 
+                className="btn-close-modal"
+                onClick={() => setShowQRModal(false)}
+              >
+                <i className="bi bi-x-lg"></i>
+              </button>
+            </div>
+
+            <div className="qr-modal-body">
+              <div className="qr-code-container">
+                <QRCodeCanvas
+                  id="qr-code-canvas"
+                  value={profileUrl}
+                  size={280}
+                  level="H"
+                  includeMargin={true}
+                />
+              </div>
+
+              <div className="qr-info">
+                <p className="qr-url">{profileUrl}</p>
+                <p className="qr-description">
+                  Scan this QR code to visit your profile
+                </p>
+              </div>
+
+              <div className="qr-actions">
+                <button 
+                  className="btn-secondary"
+                  onClick={handleCopyQRLink}
+                >
+                  <i className="bi bi-link-45deg me-2"></i>
+                  Copy Link
+                </button>
+                <button 
+                  className="btn-primary"
+                  onClick={handleDownloadQR}
+                >
+                  <i className="bi bi-download me-2"></i>
+                  Download QR
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
