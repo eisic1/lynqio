@@ -7,10 +7,12 @@ function LinkCard({ link }) {
         <i className={`bi ${link.icon}`}></i>
       </div>
       <div className="link-info">
-        <h4>{link.title}</h4>
-        <a href={link.url} target="_blank" rel="noopener noreferrer" className="link-url">
-          {link.url}
-        </a>
+        <div>
+          <h4>{link.title}</h4>
+          <a href={link.url} target="_blank" rel="noopener noreferrer" className="link-url">
+            {link.url}
+          </a>
+        </div>
         <div className="link-stats-mini">
           <span>
             <i className="bi bi-eye"></i> {link.views} views
