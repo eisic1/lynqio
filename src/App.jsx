@@ -9,6 +9,7 @@ import Editor from './pages/Editor';
 import PublicProfile from './pages/PublicProfile';
 import Appearance from './pages/Appearance';
 import Settings from './pages/Settings';
+import Analytics from './pages/Analytics';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/analytics" element={<Analytics />} />
         <Route path="/editor" element={<Editor />} />
         <Route path="/:username" element={<PublicProfile />} />
         <Route path="/appearance" element={<Appearance />} />
