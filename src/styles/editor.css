@@ -723,7 +723,7 @@ input:checked + .slider-small:before {
 /* Icon Selector - AŽURIRANO */
 .icon-selector {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 0.85rem; /* Povećaj gap */
 }
 

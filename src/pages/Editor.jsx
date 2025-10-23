@@ -636,7 +636,7 @@ function Editor() {
               <div className="form-group">
                 <label>Icon (Bootstrap Icon class)</label>
                 <div className="icon-selector">
-                  {['bi-link-45deg', 'bi-instagram', 'bi-youtube', 'bi-twitter', 
+                  {['bi-link-45deg', 'bi-telephone', 'bi-envelope', 'bi-instagram', 'bi-youtube', 'bi-twitter', 
                     'bi-facebook', 'bi-linkedin', 'bi-github', 'bi-globe'].map(icon => (
                     <button
                       key={icon}
