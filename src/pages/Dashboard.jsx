@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useProfile } from '../context/ProfileContext';
 import { QRCodeCanvas } from 'qrcode.react';
 import { profileAPI } from '../api/profile';
+import { analyticsAPI } from '../api/analytics';
 import { useToast } from '../components/toast/ToastContainer';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
@@ -18,6 +19,14 @@ function Dashboard() {
     username: ''
   });
   const [showQRModal, setShowQRModal] = useState(false);
+  const [analyticsData, setAnalyticsData] = useState({
+    total_views: 0,
+    total_clicks: 0,
+    active_links: 0,
+    total_links: 0,
+    click_rate: 0,
+    loading: true
+  });
 
   const handleViewProfile = () => {
     navigate(`/${userData.username}`);
@@ -25,6 +34,7 @@ function Dashboard() {
 
   useEffect(() => {
     loadUserData();
+    fetchAnalyticsData();
   }, []);
 
   const loadUserData = async () => {
@@ -41,6 +51,22 @@ function Dashboard() {
       }
     } catch (error) {
       console.error('Load user data error:', error);
+    }
+  };
+
+  const fetchAnalyticsData = async () => {
+    try {
+      const response = await analyticsAPI.getOverview();
+      
+      if (response.success) {
+        setAnalyticsData({
+          ...response.data,
+          loading: false
+        });
+      }
+    } catch (error) {
+      console.error('Fetch analytics error:', error);
+      setAnalyticsData(prev => ({ ...prev, loading: false }));
     }
   };
 
@@ -128,34 +154,46 @@ function Dashboard() {
 
           {/* Stats Cards */}
           <div className="stats-grid">
-            <StatsCard 
-              icon="bi-link-45deg"
-              label="Total Links"
-              value="24"
-              trend="up"
-              trendValue="+3 this month"
-            />
-            <StatsCard 
-              icon="bi-eye"
-              label="Total Views"
-              value="12.5K"
-              trend="up"
-              trendValue="+12.5%"
-            />
-            <StatsCard 
-              icon="bi-mouse"
-              label="Total Clicks"
-              value="3.2K"
-              trend="up"
-              trendValue="+8.3%"
-            />
-            <StatsCard 
-              icon="bi-graph-up-arrow"
-              label="Click Rate"
-              value="25.6%"
-              trend="down"
-              trendValue="-2.1%"
-            />
+            {analyticsData.loading ? (
+              // Loading skeleton
+              <>
+                <div className="stats-card-skeleton"></div>
+                <div className="stats-card-skeleton"></div>
+                <div className="stats-card-skeleton"></div>
+                <div className="stats-card-skeleton"></div>
+              </>
+            ) : (
+              <>
+                <StatsCard 
+                  icon="bi-eye"
+                  label="Total Views"
+                  value={analyticsData.total_views.toLocaleString()}
+                  trend="neutral"
+                  trendValue="All time"
+                />
+                <StatsCard 
+                  icon="bi-mouse"
+                  label="Total Clicks"
+                  value={analyticsData.total_clicks.toLocaleString()}
+                  trend="neutral"
+                  trendValue="All time"
+                />
+                <StatsCard 
+                  icon="bi-graph-up-arrow"
+                  label="Click Rate"
+                  value={`${analyticsData.click_rate}%`}
+                  trend={analyticsData.click_rate > 30 ? "up" : analyticsData.click_rate > 20 ? "neutral" : "down"}
+                  trendValue={analyticsData.click_rate > 30 ? "Excellent" : analyticsData.click_rate > 20 ? "Good" : "Needs improvement"}
+                />
+                <StatsCard 
+                  icon="bi-link-45deg"
+                  label="Active Links"
+                  value={`${analyticsData.active_links}/${analyticsData.total_links}`}
+                  trend="neutral"
+                  trendValue="Total links"
+                />
+              </>
+            )}
           </div>
 
           {/* Quick Actions */}
@@ -177,6 +215,21 @@ function Dashboard() {
               <span>Export Data</span>
             </button>
           </div>
+
+
+          {/* Analytics Link - DODAJ OVO */}
+          {/*<div className="analytics-preview mb-5">
+            <div className="analytics-preview-header">
+              <h3>📊 Performance Overview</h3>
+              <button 
+                className="btn-link-analytics"
+                onClick={() => navigate('/analytics')}
+              >
+                View Detailed Analytics
+                <i className="bi bi-arrow-right ms-2"></i>
+              </button>
+            </div>
+          </div> */}
 
           {/* Links Section */}
           <div className="links-section">
