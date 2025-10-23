@@ -36,7 +36,7 @@ function PublicProfile() {
         setProfileData({
           displayName: profile.title || `@${profile.username}`,
           bio: profile.bio || '',
-          avatar: profile.profile_image_url || profile.user_avatar || 'https://via.placeholder.com/150',
+          avatar: profile.profile_image_url || profile.user_avatar || `https://ui-avatars.com/api/?name=${profile.title.replace(' ', '+')}&background=667eea&color=fff&size=150`,
           username: profile.username || profile.slug,
           links: profile.links || []
         });
