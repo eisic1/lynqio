@@ -45,6 +45,15 @@ function Navbar() {
 
   return (
     <nav className="dashboard-navbar">
+      <button 
+        className="hamburger-menu"
+        onClick={() => {
+          const sidebar = document.querySelector('.sidebar');
+          sidebar?.classList.toggle('open');
+        }}
+      >
+        <i className="bi bi-list"></i>
+      </button>
       <div className="navbar-brand">
         <div className="logo-icon-small">
           <svg width="35" height="35" viewBox="0 0 60 60" fill="none">
@@ -55,12 +64,12 @@ function Navbar() {
         <h2>Lynqio</h2>
       </div>
 
-      <div className="navbar-center">
+      {/*<div className="navbar-center">
         <div className="search-bar">
           <i className="bi bi-search"></i>
           <input type="text" placeholder="Search links..." />
         </div>
-      </div>
+      </div> */}
 
       <div className="navbar-actions">
         <button className="btn-icon" title="Notifications">
