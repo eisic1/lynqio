@@ -18,7 +18,8 @@ function Appearance() {
   const [localProfile, setLocalProfile] = useState({
     displayName: profileData.displayName,
     bio: profileData.bio,
-    avatar: profileData.avatar
+    avatar: profileData.avatar,
+    headerImage: profileData.headerImage || ''
   });
 
   const [localCustomization, setLocalCustomization] = useState({
@@ -157,6 +158,34 @@ function Appearance() {
     }
   };
 
+  // Handle header image upload
+  const handleHeaderImageUpload = (e) => {
+    const file = e.target.files[0];
+    
+    if (file) {
+      // Validacija veličine fajla (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image is too large. Maximum size is 5MB.');
+        return;
+      }
+      
+      // Validacija tipa fajla
+      if (!file.type.startsWith('image/')) {
+        alert('Please upload an image file (JPG, PNG, GIF).');
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLocalProfile({
+          ...localProfile,
+          headerImage: reader.result
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   // Handle background image upload
   const handleBackgroundImageUpload = (e) => {
     const file = e.target.files[0];
@@ -264,6 +293,60 @@ function Appearance() {
                         Remove Photo
                       </button>
                     </div>
+                  </div>
+                </div>
+
+                {/* Header/Cover Image Upload - DODAJ OVO */}
+                <div className="setting-group">
+                  <label>
+                    Header Image
+                    <span className="label-hint">Recommended: 1500x500px</span>
+                  </label>
+                  <div className="header-upload-container">
+                    {localProfile.headerImage ? (
+                      <div className="header-preview-wrapper">
+                        <img 
+                          src={localProfile.headerImage} 
+                          alt="Header" 
+                          className="header-preview"
+                        />
+                        <div className="header-overlay">
+                          <input
+                            type="file"
+                            id="header-upload"
+                            accept="image/*"
+                            onChange={handleHeaderImageUpload}
+                            style={{ display: 'none' }}
+                          />
+                          <label htmlFor="header-upload" className="btn-change-header">
+                            <i className="bi bi-camera"></i>
+                            Change
+                          </label>
+                          <button 
+                            className="btn-remove-header"
+                            onClick={() => setLocalProfile({ ...localProfile, headerImage: '' })}
+                          >
+                            <i className="bi bi-trash"></i>
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="header-upload-empty">
+                        <input
+                          type="file"
+                          id="header-upload"
+                          accept="image/*"
+                          onChange={handleHeaderImageUpload}
+                          style={{ display: 'none' }}
+                        />
+                        <label htmlFor="header-upload" className="btn-upload-header">
+                          <i className="bi bi-image"></i>
+                          <span>Upload Header Image</span>
+                          <small>JPG, PNG or GIF (max 5MB)</small>
+                        </label>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -567,6 +650,17 @@ function Appearance() {
                         backgroundRepeat: 'no-repeat'
                     }}
                     >
+
+                      {/* Header Image - DODAJ OVO */}
+                      {localProfile.headerImage && (
+                        <div className="preview-header-image">
+                          <img 
+                            src={localProfile.headerImage} 
+                            alt="Header" 
+                            className="header-img"
+                          />
+                        </div>
+                      )}
                     {/* Profile Section */}
                     <div className="preview-profile">
                         <img 
