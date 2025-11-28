@@ -1014,3 +1014,60 @@
     font-size: 0.8rem;
   }
 }
+
+/* ==================== ACCORDION SECTIONS ==================== */
+
+.section-header-clickable {
+  cursor: pointer;
+  user-select: none;
+  display: flex !important;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+  padding: 0.75rem;
+  margin: -0.75rem -0.75rem 1rem -0.75rem;
+  border-radius: 8px;
+}
+
+.section-header-clickable:hover {
+  background: rgba(102, 126, 234, 0.05);
+}
+
+.section-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.section-toggle-icon {
+  font-size: 1rem;
+  color: #718096;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.section-header-clickable:hover .section-toggle-icon {
+  color: #667eea;
+}
+
+/* Section Content with Animation */
+.section-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+              opacity 0.3s ease,
+              margin 0.3s ease;
+  opacity: 0;
+  margin-top: 0;
+}
+
+.section-content.active {
+  max-height: 2000px;
+  opacity: 1;
+  margin-top: 1rem;
+}
+
+/* Adjust spacing when collapsed */
+.settings-section:has(.section-content:not(.active)) {
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+}

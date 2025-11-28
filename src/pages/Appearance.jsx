@@ -27,6 +27,7 @@ function Appearance() {
   });
 
   const [previewDevice, setPreviewDevice] = useState('mobile');
+  const [activeSection, setActiveSection] = useState('profile');
 
   // Font options
   const fonts = [
@@ -256,345 +257,386 @@ function Appearance() {
 
               {/* Profile Section */}
               <div className="settings-section">
-                <h3>
-                  <i className="bi bi-person-circle"></i>
-                  Profile
+                <h3 
+                  onClick={() => setActiveSection(activeSection === 'profile' ? '' : 'profile')}
+                  className="section-header-clickable"
+                >
+                  <div className="section-header-left">
+                    <i className="bi bi-person-circle"></i>
+                    Profile
+                  </div>
+                  <i className={`bi bi-chevron-${activeSection === 'profile' ? 'up' : 'down'} section-toggle-icon`}></i>
                 </h3>
                 
-                {/* Avatar Upload */}
-                <div className="setting-group">
-                  <label>Profile Image</label>
-                  <div className="avatar-upload-container">
-                    <img 
-                      src={localProfile.avatar} 
-                      alt="Profile" 
-                      className="avatar-preview"
-                    />
-                    <div className="avatar-upload-actions">
-                      <input
-                        type="file"
-                        id="avatar-upload"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        style={{ display: 'none' }}
+                <div className={`section-content ${activeSection === 'profile' ? 'active' : ''}`}>
+                  {/* Avatar Upload */}
+                  <div className="setting-group">
+                    <label>Profile Image</label>
+                    <div className="avatar-upload-container">
+                      <img 
+                        src={localProfile.avatar} 
+                        alt="Profile" 
+                        className="avatar-preview"
                       />
-                      <label htmlFor="avatar-upload" className="btn-upload-avatar">
-                        <i className="bi bi-camera me-2 ms-0"></i>
-                        Change Photo
-                      </label>
-                      <button 
-                        className="btn-remove-avatar"
-                        onClick={() => setLocalProfile({
-                          ...localProfile,
-                          avatar: `https://ui-avatars.com/api/?name=${localProfile.displayName.replace(' ', '+')}&background=667eea&color=fff&size=150`
-                        })}
-                      >
-                        <i className="bi bi-trash"></i>
-                        Remove Photo
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Header/Cover Image Upload - DODAJ OVO */}
-                <div className="setting-group">
-                  <label>
-                    Header Image
-                    <span className="label-hint">Recommended: 1500x500px</span>
-                  </label>
-                  <div className="header-upload-container">
-                    {localProfile.headerImage ? (
-                      <div className="header-preview-wrapper">
-                        <img 
-                          src={localProfile.headerImage} 
-                          alt="Header" 
-                          className="header-preview"
-                        />
-                        <div className="header-overlay">
-                          <input
-                            type="file"
-                            id="header-upload"
-                            accept="image/*"
-                            onChange={handleHeaderImageUpload}
-                            style={{ display: 'none' }}
-                          />
-                          <label htmlFor="header-upload" className="btn-change-header">
-                            <i className="bi bi-camera"></i>
-                            Change
-                          </label>
-                          <button 
-                            className="btn-remove-header"
-                            onClick={() => setLocalProfile({ ...localProfile, headerImage: '' })}
-                          >
-                            <i className="bi bi-trash"></i>
-                            Remove
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="header-upload-empty">
+                      <div className="avatar-upload-actions">
                         <input
                           type="file"
-                          id="header-upload"
+                          id="avatar-upload"
                           accept="image/*"
-                          onChange={handleHeaderImageUpload}
+                          onChange={handleImageUpload}
                           style={{ display: 'none' }}
                         />
-                        <label htmlFor="header-upload" className="btn-upload-header">
-                          <i className="bi bi-image"></i>
-                          <span>Upload Header Image</span>
-                          <small>JPG, PNG or GIF (max 5MB)</small>
+                        <label htmlFor="avatar-upload" className="btn-upload-avatar">
+                          <i className="bi bi-camera me-2 ms-0"></i>
+                          Change Photo
                         </label>
+                        <button 
+                          className="btn-remove-avatar"
+                          onClick={() => setLocalProfile({
+                            ...localProfile,
+                            avatar: `https://ui-avatars.com/api/?name=${localProfile.displayName.replace(' ', '+')}&background=667eea&color=fff&size=150`
+                          })}
+                        >
+                          <i className="bi bi-trash"></i>
+                          Remove Photo
+                        </button>
                       </div>
-                    )}
+                    </div>
+                    </div>
+
+                    {/* Header/Cover Image Upload - DODAJ OVO */}
+                    <div className="setting-group">
+                      <label>
+                        Header Image
+                        <span className="label-hint">Recommended: 1500x500px</span>
+                      </label>
+                      <div className="header-upload-container">
+                        {localProfile.headerImage ? (
+                          <div className="header-preview-wrapper">
+                            <img 
+                              src={localProfile.headerImage} 
+                              alt="Header" 
+                              className="header-preview"
+                            />
+                            <div className="header-overlay">
+                              <input
+                                type="file"
+                                id="header-upload"
+                                accept="image/*"
+                                onChange={handleHeaderImageUpload}
+                                style={{ display: 'none' }}
+                              />
+                              <label htmlFor="header-upload" className="btn-change-header">
+                                <i className="bi bi-camera"></i>
+                                Change
+                              </label>
+                              <button 
+                                className="btn-remove-header"
+                                onClick={() => setLocalProfile({ ...localProfile, headerImage: '' })}
+                              >
+                                <i className="bi bi-trash"></i>
+                                Remove
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="header-upload-empty">
+                            <input
+                              type="file"
+                              id="header-upload"
+                              accept="image/*"
+                              onChange={handleHeaderImageUpload}
+                              style={{ display: 'none' }}
+                            />
+                            <label htmlFor="header-upload" className="btn-upload-header">
+                              <i className="bi bi-image"></i>
+                              <span>Upload Header Image</span>
+                              <small>JPG, PNG or GIF (max 5MB)</small>
+                            </label>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Display Name */}
+                    <div className="setting-group">
+                      <label>Display Name</label>
+                      <input 
+                        type="text"
+                        className="setting-input"
+                        value={localProfile.displayName}
+                        onChange={(e) => setLocalProfile({
+                          ...localProfile,
+                          displayName: e.target.value
+                        })}
+                        placeholder="Your Name"
+                      />
+                    </div>
+
+                    {/* Bio */}
+                    <div className="setting-group">
+                      <label>Bio</label>
+                      <textarea 
+                        className="setting-textarea"
+                        value={localProfile.bio}
+                        onChange={(e) => setLocalProfile({
+                          ...localProfile,
+                          bio: e.target.value
+                        })}
+                        placeholder="Tell people about yourself..."
+                        rows="3"
+                      />
+                      <small>{localProfile.bio.length}/150 characters</small>
+                    </div>
                   </div>
-                </div>
-
-                {/* Display Name */}
-                <div className="setting-group">
-                  <label>Display Name</label>
-                  <input 
-                    type="text"
-                    className="setting-input"
-                    value={localProfile.displayName}
-                    onChange={(e) => setLocalProfile({
-                      ...localProfile,
-                      displayName: e.target.value
-                    })}
-                    placeholder="Your Name"
-                  />
-                </div>
-
-                {/* Bio */}
-                <div className="setting-group">
-                  <label>Bio</label>
-                  <textarea 
-                    className="setting-textarea"
-                    value={localProfile.bio}
-                    onChange={(e) => setLocalProfile({
-                      ...localProfile,
-                      bio: e.target.value
-                    })}
-                    placeholder="Tell people about yourself..."
-                    rows="3"
-                  />
-                  <small>{localProfile.bio.length}/150 characters</small>
-                </div>
               </div>
 
               {/* Themes Section */}
               <div className="settings-section">
-                <h3>
-                  <i className="bi bi-palette"></i>
-                  Themes
+                <h3 
+                  onClick={() => setActiveSection(activeSection === 'themes' ? '' : 'themes')}
+                  className="section-header-clickable"
+                >
+                  <div className="section-header-left">
+                    <i className="bi bi-palette"></i>
+                    Themes
+                  </div>
+                  <i className={`bi bi-chevron-${activeSection === 'themes' ? 'up' : 'down'} section-toggle-icon`}></i>
                 </h3>
-                <p className="section-description">Quick preset themes</p>
-                
-                <div className="themes-grid">
-                  {themes.map((theme, index) => (
-                    <button
-                      key={index}
-                      className="theme-card"
-                      onClick={() => applyTheme(theme)}
-                      style={{ backgroundColor: theme.backgroundColor }}
-                    >
-                      <i className={`bi ${theme.icon}`} style={{ color: theme.textColor }}></i>
-                      <span style={{ color: theme.textColor }}>{theme.name}</span>
-                    </button>
-                  ))}
+
+                <div className={`section-content ${activeSection === 'themes' ? 'active' : ''}`}>
+                  <p className="section-description">Quick preset themes</p>
+                  
+                  <div className="themes-grid">
+                    {themes.map((theme, index) => (
+                      <button
+                        key={index}
+                        className="theme-card"
+                        onClick={() => applyTheme(theme)}
+                        style={{ backgroundColor: theme.backgroundColor }}
+                      >
+                        <i className={`bi ${theme.icon}`} style={{ color: theme.textColor }}></i>
+                        <span style={{ color: theme.textColor }}>{theme.name}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
               {/* Background Section */}
               <div className="settings-section">
-                <h3>
-                  <i className="bi bi-image"></i>
-                  Background
+                <h3 
+                  onClick={() => setActiveSection(activeSection === 'background' ? '' : 'background')}
+                  className="section-header-clickable"
+                >
+                  <div className="section-header-left">
+                    <i className="bi bi-image"></i>
+                    Background
+                  </div>
+                  <i className={`bi bi-chevron-${activeSection === 'background' ? 'up' : 'down'} section-toggle-icon`}></i>
                 </h3>
 
-                {/* Background Type */}
-                <div className="setting-group">
-                  <label>Background Type</label>
-                  <div className="toggle-buttons">
-                    <button
-                      className={`toggle-btn ${localCustomization.backgroundType === 'color' ? 'active' : ''}`}
-                      onClick={() => setLocalCustomization({
-                        ...localCustomization,
-                        backgroundType: 'color'
-                      })}
-                    >
-                      <i className="bi bi-palette"></i>
-                      Color
-                    </button>
-                    <button
-                      className={`toggle-btn ${localCustomization.backgroundType === 'image' ? 'active' : ''}`}
-                      onClick={() => setLocalCustomization({
-                        ...localCustomization,
-                        backgroundType: 'image'
-                      })}
-                    >
-                      <i className="bi bi-image"></i>
-                      Image
-                    </button>
-                  </div>
-                </div>
-
-                {/* Background Color */}
-                {localCustomization.backgroundType === 'color' && (
+                <div className={`section-content ${activeSection === 'background' ? 'active' : ''}`}>
+                  {/* Background Type */}
                   <div className="setting-group">
-                    <label>Background Color</label>
-                    <div className="color-picker-container">
-                      <input 
-                        type="color"
-                        className="color-picker"
-                        value={localCustomization.backgroundColor}
-                        onChange={(e) => setLocalCustomization({
+                    <label>Background Type</label>
+                    <div className="toggle-buttons">
+                      <button
+                        className={`toggle-btn ${localCustomization.backgroundType === 'color' ? 'active' : ''}`}
+                        onClick={() => setLocalCustomization({
                           ...localCustomization,
-                          backgroundColor: e.target.value
+                          backgroundType: 'color'
                         })}
-                      />
-                      <span className="color-value">{localCustomization.backgroundColor}</span>
+                      >
+                        <i className="bi bi-palette"></i>
+                        Color
+                      </button>
+                      <button
+                        className={`toggle-btn ${localCustomization.backgroundType === 'image' ? 'active' : ''}`}
+                        onClick={() => setLocalCustomization({
+                          ...localCustomization,
+                          backgroundType: 'image'
+                        })}
+                      >
+                        <i className="bi bi-image"></i>
+                        Image
+                      </button>
                     </div>
                   </div>
-                )}
 
-                {/* Background Image */}
-                {localCustomization.backgroundType === 'image' && (
-                  <div className="setting-group">
-                    <label>Background Image</label>
-                    {!localCustomization.backgroundImage ? (
-                      <div className="image-upload-box">
-                        <input
-                          type="file"
-                          id="bg-upload"
-                          accept="image/*"
-                          onChange={handleBackgroundImageUpload}
-                          style={{ display: 'none' }}
-                        />
-                        <label htmlFor="bg-upload" className="upload-box-label">
-                          <i className="bi bi-cloud-upload"></i>
-                          <span>Click to upload background</span>
-                          <small>PNG, JPG up to 5MB</small>
-                        </label>
-                      </div>
-                    ) : (
-                      <div className="bg-image-preview">
-                        <img src={localCustomization.backgroundImage} alt="Background" />
-                        <button 
-                          className="btn-remove-bg"
-                          onClick={() => setLocalCustomization({
+                  {/* Background Color */}
+                  {localCustomization.backgroundType === 'color' && (
+                    <div className="setting-group">
+                      <label>Background Color</label>
+                      <div className="color-picker-container">
+                        <input 
+                          type="color"
+                          className="color-picker"
+                          value={localCustomization.backgroundColor}
+                          onChange={(e) => setLocalCustomization({
                             ...localCustomization,
-                            backgroundImage: ''
+                            backgroundColor: e.target.value
                           })}
-                        >
-                          <i className="bi bi-trash"></i>
-                          Remove Image
-                        </button>
+                        />
+                        <span className="color-value">{localCustomization.backgroundColor}</span>
                       </div>
-                    )}
-                  </div>
-                )}
+                    </div>
+                  )}
+
+                  {/* Background Image */}
+                  {localCustomization.backgroundType === 'image' && (
+                    <div className="setting-group">
+                      <label>Background Image</label>
+                      {!localCustomization.backgroundImage ? (
+                        <div className="image-upload-box">
+                          <input
+                            type="file"
+                            id="bg-upload"
+                            accept="image/*"
+                            onChange={handleBackgroundImageUpload}
+                            style={{ display: 'none' }}
+                          />
+                          <label htmlFor="bg-upload" className="upload-box-label">
+                            <i className="bi bi-cloud-upload"></i>
+                            <span>Click to upload background</span>
+                            <small>PNG, JPG up to 5MB</small>
+                          </label>
+                        </div>
+                      ) : (
+                        <div className="bg-image-preview">
+                          <img src={localCustomization.backgroundImage} alt="Background" />
+                          <button 
+                            className="btn-remove-bg"
+                            onClick={() => setLocalCustomization({
+                              ...localCustomization,
+                              backgroundImage: ''
+                            })}
+                          >
+                            <i className="bi bi-trash"></i>
+                            Remove Image
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Buttons Section */}
               <div className="settings-section">
-                <h3>
-                  <i className="bi bi-cursor"></i>
-                  Buttons
+                <h3 
+                  onClick={() => setActiveSection(activeSection === 'buttons' ? '' : 'buttons')}
+                  className="section-header-clickable"
+                >
+                  <div className="section-header-left">
+                    <i className="bi bi-cursor"></i>
+                    Buttons
+                  </div>
+                  <i className={`bi bi-chevron-${activeSection === 'buttons' ? 'up' : 'down'} section-toggle-icon`}></i>
                 </h3>
 
-                {/* Button Color */}
-                <div className="setting-group">
-                  <label>Button Color</label>
-                  <div className="color-picker-container">
-                    <input 
-                      type="color"
-                      className="color-picker"
-                      value={localCustomization.buttonColor}
-                      onChange={(e) => setLocalCustomization({
-                        ...localCustomization,
-                        buttonColor: e.target.value
-                      })}
-                    />
-                    <span className="color-value">{localCustomization.buttonColor}</span>
+                  <div className={`section-content ${activeSection === 'buttons' ? 'active' : ''}`}>
+                  {/* Button Color */}
+                  <div className="setting-group">
+                    <label>Button Color</label>
+                    <div className="color-picker-container">
+                      <input 
+                        type="color"
+                        className="color-picker"
+                        value={localCustomization.buttonColor}
+                        onChange={(e) => setLocalCustomization({
+                          ...localCustomization,
+                          buttonColor: e.target.value
+                        })}
+                      />
+                      <span className="color-value">{localCustomization.buttonColor}</span>
+                    </div>
                   </div>
-                </div>
 
-                {/* Button Style */}
-                <div className="setting-group">
-                  <label>Button Style</label>
-                  <div className="button-style-options">
-                    <button
-                      className={`style-option rounded ${localCustomization.buttonStyle === 'rounded' ? 'active' : ''}`}
-                      onClick={() => setLocalCustomization({
-                        ...localCustomization,
-                        buttonStyle: 'rounded'
-                      })}
-                    >
-                      Rounded
-                    </button>
-                    <button
-                      className={`style-option square ${localCustomization.buttonStyle === 'square' ? 'active' : ''}`}
-                      onClick={() => setLocalCustomization({
-                        ...localCustomization,
-                        buttonStyle: 'square'
-                      })}
-                    >
-                      Square
-                    </button>
-                    <button
-                      className={`style-option pill ${localCustomization.buttonStyle === 'pill' ? 'active' : ''}`}
-                      onClick={() => setLocalCustomization({
-                        ...localCustomization,
-                        buttonStyle: 'pill'
-                      })}
-                    >
-                      Pill
-                    </button>
+                  {/* Button Style */}
+                  <div className="setting-group">
+                    <label>Button Style</label>
+                    <div className="button-style-options">
+                      <button
+                        className={`style-option rounded ${localCustomization.buttonStyle === 'rounded' ? 'active' : ''}`}
+                        onClick={() => setLocalCustomization({
+                          ...localCustomization,
+                          buttonStyle: 'rounded'
+                        })}
+                      >
+                        Rounded
+                      </button>
+                      <button
+                        className={`style-option square ${localCustomization.buttonStyle === 'square' ? 'active' : ''}`}
+                        onClick={() => setLocalCustomization({
+                          ...localCustomization,
+                          buttonStyle: 'square'
+                        })}
+                      >
+                        Square
+                      </button>
+                      <button
+                        className={`style-option pill ${localCustomization.buttonStyle === 'pill' ? 'active' : ''}`}
+                        onClick={() => setLocalCustomization({
+                          ...localCustomization,
+                          buttonStyle: 'pill'
+                        })}
+                      >
+                        Pill
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Typography Section */}
               <div className="settings-section">
-                <h3>
-                  <i className="bi bi-fonts"></i>
-                  Typography
+                <h3 
+                  onClick={() => setActiveSection(activeSection === 'typography' ? '' : 'typography')}
+                  className="section-header-clickable"
+                >
+                  <div className="section-header-left">
+                    <i className="bi bi-fonts"></i>
+                    Typography
+                  </div>
+                  <i className={`bi bi-chevron-${activeSection === 'typography' ? 'up' : 'down'} section-toggle-icon`}></i>
                 </h3>
 
-                {/* Font Family */}
-                <div className="setting-group">
-                  <label>Font Family</label>
-                  <select 
-                    className="setting-select"
-                    value={localCustomization.font}
-                    onChange={(e) => setLocalCustomization({
-                      ...localCustomization,
-                      font: e.target.value
-                    })}
-                  >
-                    {fonts.map((font) => (
-                      <option key={font.value} value={font.value}>
-                        {font.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Text Color */}
-                <div className="setting-group">
-                  <label>Text Color</label>
-                  <div className="color-picker-container">
-                    <input 
-                      type="color"
-                      className="color-picker"
-                      value={localCustomization.textColor || '#2d3748'}
+                <div className={`section-content ${activeSection === 'typography' ? 'active' : ''}`}>
+                  {/* Font Family */}
+                  <div className="setting-group">
+                    <label>Font Family</label>
+                    <select 
+                      className="setting-select"
+                      value={localCustomization.font}
                       onChange={(e) => setLocalCustomization({
                         ...localCustomization,
-                        textColor: e.target.value
+                        font: e.target.value
                       })}
-                    />
-                    <span className="color-value">{localCustomization.textColor || '#2d3748'}</span>
+                    >
+                      {fonts.map((font) => (
+                        <option key={font.value} value={font.value}>
+                          {font.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Text Color */}
+                  <div className="setting-group">
+                    <label>Text Color</label>
+                    <div className="color-picker-container">
+                      <input 
+                        type="color"
+                        className="color-picker"
+                        value={localCustomization.textColor || '#2d3748'}
+                        onChange={(e) => setLocalCustomization({
+                          ...localCustomization,
+                          textColor: e.target.value
+                        })}
+                      />
+                      <span className="color-value">{localCustomization.textColor || '#2d3748'}</span>
+                    </div>
                   </div>
                 </div>
               </div>
