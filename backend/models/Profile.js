@@ -42,18 +42,37 @@ class Profile {
   static async findByUserId(userId) {
     try {
       const query = `
-        SELECT * FROM profiles WHERE user_id = $1
+        SELECT * FROM profiles 
+        WHERE user_id = $1 
+        LIMIT 1
       `;
       
       const result = await pool.query(query, [userId]);
-      return result.rows[0];
+      
+      if (result.rows.length === 0) {
+        return null;
+      }
+      
+      const profile = result.rows[0];
+      
+      // ✅ Parse customization ako postoji i ako je string
+      if (profile.customization && typeof profile.customization === 'string') {
+        try {
+          profile.customization = JSON.parse(profile.customization);
+        } catch (e) {
+          console.error('Failed to parse customization:', e);
+          profile.customization = null;
+        }
+      }
+      
+      return profile;
     } catch (error) {
       throw error;
     }
   }
 
   // Update profila
-  static async update(profileId, data) {
+  /*static async update(profileId, data) {
     try {
       const { title, bio, profile_image_url, theme, seo_title, seo_description, is_public } = data;
       
@@ -72,6 +91,59 @@ class Profile {
       `;
       
       const values = [title, bio, profile_image_url, theme, seo_title, seo_description, is_public, profileId];
+      const result = await pool.query(query, values);
+      
+      return result.rows[0];
+    } catch (error) {
+      throw error;
+    }
+  }*/
+
+  static async update(profileId, data) {
+    try {
+      const { 
+        title, 
+        bio, 
+        profile_image_url, 
+        theme, 
+        customization,  
+        seo_title, 
+        seo_description, 
+        is_public 
+      } = data;
+      
+      let customizationValue = customization;
+      if (customization && typeof customization === 'object') {
+        customizationValue = JSON.stringify(customization);
+      }
+      
+      const query = `
+        UPDATE profiles 
+        SET title = COALESCE($1, title),
+            bio = COALESCE($2, bio),
+            profile_image_url = COALESCE($3, profile_image_url),
+            theme = COALESCE($4, theme),
+            customization = COALESCE($5, customization),
+            seo_title = COALESCE($6, seo_title),
+            seo_description = COALESCE($7, seo_description),
+            is_public = COALESCE($8, is_public),
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = $9
+        RETURNING *
+      `;
+      
+      const values = [
+        title, 
+        bio, 
+        profile_image_url, 
+        theme, 
+        customizationValue,  
+        seo_title, 
+        seo_description, 
+        is_public, 
+        profileId
+      ];
+      
       const result = await pool.query(query, values);
       
       return result.rows[0];

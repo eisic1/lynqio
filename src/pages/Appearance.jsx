@@ -16,14 +16,20 @@ function Appearance() {
   const [saving, setSaving] = useState(false);
   
   const [localProfile, setLocalProfile] = useState({
-    displayName: profileData.displayName,
-    bio: profileData.bio,
-    avatar: profileData.avatar,
-    headerImage: profileData.headerImage || ''
+    displayName: '',
+    bio: '',
+    avatar: 'https://www.svgrepo.com/show/384674/account-avatar-profile-user-11.svg',
+    headerImage: ''
   });
 
   const [localCustomization, setLocalCustomization] = useState({
-    ...profileData.customization
+    backgroundColor: '#ffffff',
+    backgroundType: 'color',
+    backgroundImage: '',
+    buttonColor: '#667eea',
+    buttonStyle: 'rounded',
+    font: 'inter',
+    textColor: '#2d3748'
   });
 
   const [previewDevice, setPreviewDevice] = useState('mobile');
@@ -102,11 +108,55 @@ function Appearance() {
         setLocalProfile({
           displayName: profile.title || '',
           bio: profile.bio || '',
-          avatar: profile.profile_image_url || 'https://www.svgrepo.com/show/384674/account-avatar-profile-user-11.svg'
+          avatar: profile.profile_image_url || 'https://www.svgrepo.com/show/384674/account-avatar-profile-user-11.svg',
+          headerImage: '' 
         });
 
+        // Učitaj customization iz baze
+      if (profile.customization) {
+        const customization = profile.customization;
+        
+        // Ako postoji profile sekcija u customization
+        if (customization.profile) {
+          setLocalProfile(prev => ({
+            ...prev,
+            displayName: customization.profile.displayName || profile.title || '',
+            avatar: customization.profile.avatar || profile.profile_image_url || prev.avatar,
+            headerImage: customization.profile.headerImage || ''
+          }));
+        }
+        
+        // Učitaj background settings
+        if (customization.background) {
+          setLocalCustomization(prev => ({
+            ...prev,
+            backgroundColor: customization.background.color || '#ffffff',
+            backgroundType: customization.background.type || 'color',
+            backgroundImage: customization.background.image || ''
+          }));
+        }
+        
+        // Učitaj button settings
+        if (customization.buttons) {
+          setLocalCustomization(prev => ({
+            ...prev,
+            buttonColor: customization.buttons.color || '#667eea',
+            buttonStyle: customization.buttons.style || 'rounded'
+          }));
+        }
+        
+        // Učitaj typography settings
+        if (customization.typography) {
+          setLocalCustomization(prev => ({
+            ...prev,
+            font: customization.typography.fontFamily || 'inter',
+            textColor: customization.typography.textColor || '#2d3748'
+          }));
+        }
+      } 
+
         // Učitaj theme ako postoji
-        if (profile.theme) {
+        else if (profile.theme) {
           try {
             const savedTheme = JSON.parse(profile.theme);
             setLocalCustomization(savedTheme);
@@ -132,7 +182,6 @@ function Appearance() {
       if (response.success) {
         setLinks(response.data.links);
         links = response.data.links;
-        console.log('DANAS', links);
       }
     } catch (error) {
       console.error('Fetch links error:', error);
@@ -208,10 +257,10 @@ function Appearance() {
     setLocalCustomization({
       ...localCustomization,
       backgroundColor: theme.backgroundColor,
-      buttonColor: theme.buttonColor,
-      textColor: theme.textColor,
       backgroundType: 'color',
-      backgroundImage: ''
+      backgroundImage: '',
+      buttonColor: theme.buttonColor,
+      textColor: theme.textColor
     });
   };
 
@@ -220,11 +269,37 @@ function Appearance() {
     try {
       setSaving(true);
       
+      // Kreiraj customization objekat
+      const customization = {
+        profile: {
+          displayName: localProfile.displayName,
+          avatar: localProfile.avatar,
+          headerImage: localProfile.headerImage,
+          socialLinks: {}
+        },
+        theme: {
+          preset: 'custom'
+        },
+        background: {
+          type: localCustomization.backgroundType,
+          color: localCustomization.backgroundColor,
+          image: localCustomization.backgroundImage
+        },
+        buttons: {
+          color: localCustomization.buttonColor,
+          style: localCustomization.buttonStyle
+        },
+        typography: {
+          fontFamily: localCustomization.font,
+          textColor: localCustomization.textColor
+        }
+      };
+      
       const response = await profileAPI.updateProfile({
         title: localProfile.displayName,
         bio: localProfile.bio,
         profile_image_url: localProfile.avatar,
-        theme: JSON.stringify(localCustomization)
+        customization: customization 
       });
 
       if (response.success) {
@@ -302,45 +377,23 @@ function Appearance() {
                         </button>
                       </div>
                     </div>
-                    </div>
+                  </div>
 
-                    {/* Header/Cover Image Upload - DODAJ OVO */}
-                    <div className="setting-group">
-                      <label>
-                        Header Image
-                        <span className="label-hint">Recommended: 1500x500px</span>
-                      </label>
-                      <div className="header-upload-container">
-                        {localProfile.headerImage ? (
-                          <div className="header-preview-wrapper">
-                            <img 
-                              src={localProfile.headerImage} 
-                              alt="Header" 
-                              className="header-preview"
-                            />
-                            <div className="header-overlay">
-                              <input
-                                type="file"
-                                id="header-upload"
-                                accept="image/*"
-                                onChange={handleHeaderImageUpload}
-                                style={{ display: 'none' }}
-                              />
-                              <label htmlFor="header-upload" className="btn-change-header">
-                                <i className="bi bi-camera"></i>
-                                Change
-                              </label>
-                              <button 
-                                className="btn-remove-header"
-                                onClick={() => setLocalProfile({ ...localProfile, headerImage: '' })}
-                              >
-                                <i className="bi bi-trash"></i>
-                                Remove
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="header-upload-empty">
+                  {/* Header Image Upload - DODAJ OVO */}
+                  <div className="setting-group">
+                    <label>
+                      Header Image
+                      <span className="label-hint">Recommended: 1500x500px</span>
+                    </label>
+                    <div className="header-upload-container">
+                      {localProfile.headerImage ? (
+                        <div className="header-preview-wrapper">
+                          <img 
+                            src={localProfile.headerImage} 
+                            alt="Header" 
+                            className="header-preview"
+                          />
+                          <div className="header-overlay">
                             <input
                               type="file"
                               id="header-upload"
@@ -348,15 +401,37 @@ function Appearance() {
                               onChange={handleHeaderImageUpload}
                               style={{ display: 'none' }}
                             />
-                            <label htmlFor="header-upload" className="btn-upload-header">
-                              <i className="bi bi-image"></i>
-                              <span>Upload Header Image</span>
-                              <small>JPG, PNG or GIF (max 5MB)</small>
+                            <label htmlFor="header-upload" className="btn-change-header">
+                              <i className="bi bi-camera"></i>
+                              Change
                             </label>
+                            <button 
+                              className="btn-remove-header"
+                              onClick={() => setLocalProfile({ ...localProfile, headerImage: '' })}
+                            >
+                              <i className="bi bi-trash"></i>
+                              Remove
+                            </button>
                           </div>
-                        )}
-                      </div>
+                        </div>
+                      ) : (
+                        <div className="header-upload-empty">
+                          <input
+                            type="file"
+                            id="header-upload"
+                            accept="image/*"
+                            onChange={handleHeaderImageUpload}
+                            style={{ display: 'none' }}
+                          />
+                          <label htmlFor="header-upload" className="btn-upload-header">
+                            <i className="bi bi-image"></i>
+                            <span>Upload Header Image</span>
+                            <small>JPG, PNG or GIF (max 5MB)</small>
+                          </label>
+                        </div>
+                      )}
                     </div>
+                  </div>
 
                     {/* Display Name */}
                     <div className="setting-group">
