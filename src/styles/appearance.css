@@ -840,11 +840,11 @@
 }
 
 /* Kada nema header image */
-.preview-screen:not(:has(.preview-header-image)) .preview-profile-section {
+.preview-content:not(:has(.preview-header-image)) .preview-profile {
   padding-top: 2.5rem;
 }
 
-.preview-screen:not(:has(.preview-header-image)) .preview-avatar-img {
+.preview-content:not(:has(.preview-header-image)) .preview-avatar {
   border-color: rgba(255, 255, 255, 0.3);
 }
 
