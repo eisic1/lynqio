@@ -23,6 +23,7 @@ function Appearance() {
     bio: '',
     avatar: 'https://www.svgrepo.com/show/384674/account-avatar-profile-user-11.svg',
     headerImage: '',
+    avatarShape: 'circle',
     socialLinks: {
       instagram: '',
       twitter: '',
@@ -158,6 +159,7 @@ function Appearance() {
             ...prev,
             displayName: customization.profile.displayName || profile.title || '',
             avatar: customization.profile.avatar || profile.profile_image_url || prev.avatar,
+            avatarShape: customization.profile.avatarShape || 'circle',
             headerImage: customization.profile.headerImage || '',
             socialLinks: customization.profile.socialLinks || {}
           }));
@@ -358,6 +360,7 @@ function Appearance() {
         profile: {
           displayName: localProfile.displayName,
           avatar: localProfile.avatar,
+          avatarShape: localProfile.avatarShape,
           headerImage: localProfile.headerImage,
           socialLinks: localProfile.socialLinks
         },
@@ -460,6 +463,51 @@ function Appearance() {
                           Remove Photo
                         </button>
                       </div>
+                    </div>
+                  </div>
+
+                  {/* Avatar Shape - DODAJ OVO */}
+                  <div className="setting-group">
+                    <label>Avatar Shape</label>
+                    <div className="avatar-shape-options">
+                      <button
+                        className={`avatar-shape-btn circle ${localProfile.avatarShape === 'circle' ? 'active' : ''}`}
+                        onClick={() => setLocalProfile({
+                          ...localProfile,
+                          avatarShape: 'circle'
+                        })}
+                      >
+                        <div className="shape-preview circle">
+                          <img src={localProfile.avatar} alt="Circle" />
+                        </div>
+                        <span>Circle</span>
+                      </button>
+                      
+                      <button
+                        className={`avatar-shape-btn square ${localProfile.avatarShape === 'square' ? 'active' : ''}`}
+                        onClick={() => setLocalProfile({
+                          ...localProfile,
+                          avatarShape: 'square'
+                        })}
+                      >
+                        <div className="shape-preview square">
+                          <img src={localProfile.avatar} alt="Square" />
+                        </div>
+                        <span>Square</span>
+                      </button>
+                      
+                      <button
+                        className={`avatar-shape-btn rounded ${localProfile.avatarShape === 'rounded' ? 'active' : ''}`}
+                        onClick={() => setLocalProfile({
+                          ...localProfile,
+                          avatarShape: 'rounded'
+                        })}
+                      >
+                        <div className="shape-preview rounded">
+                          <img src={localProfile.avatar} alt="Rounded" />
+                        </div>
+                        <span>Rounded</span>
+                      </button>
                     </div>
                   </div>
 
@@ -1070,7 +1118,7 @@ function Appearance() {
                         <img 
                         src={localProfile.avatar} 
                         alt="Profile"
-                        className="preview-avatar"
+                        className={`preview-avatar ${localProfile.avatarShape}`}
                         />
                         <h2>{localProfile.displayName}</h2>
                         <p>{localProfile.bio}</p>
