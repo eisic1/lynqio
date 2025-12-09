@@ -1502,3 +1502,193 @@
     max-height: 60vh;
   }
 }
+
+/* ==================== SOCIAL MEDIA LINKS ==================== */
+
+.social-links-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.social-link-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.social-link-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: white;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+}
+
+.social-link-icon:hover {
+  transform: scale(1.05);
+}
+
+/* Social Platform Colors */
+.social-link-icon.instagram {
+  background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+}
+
+.social-link-icon.twitter {
+  background: #000000;
+}
+
+.social-link-icon.tiktok {
+  background: #000000;
+}
+
+.social-link-icon.youtube {
+  background: #ff0000;
+}
+
+.social-link-icon.linkedin {
+  background: #0077b5;
+}
+
+.social-link-icon.facebook {
+  background: #1877f2;
+}
+
+.social-link-icon.github {
+  background: #333333;
+}
+
+.social-link-icon.spotify {
+  background: #1db954;
+}
+
+.social-link-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  color: #2d3748;
+}
+
+.social-link-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.social-link-input::placeholder {
+  color: #a0aec0;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .social-link-icon {
+    width: 38px;
+    height: 38px;
+    font-size: 1rem;
+  }
+  
+  .social-link-input {
+    font-size: 0.85rem;
+    padding: 0.65rem 0.85rem;
+  }
+}
+
+/* ==================== PREVIEW SOCIAL LINKS ==================== */
+
+.preview-social-links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.preview-social-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.preview-social-icon:hover {
+  transform: translateY(-3px) scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* Social Platform Colors - Preview */
+.preview-social-icon.instagram {
+  background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+}
+
+.preview-social-icon.twitter {
+  background: #000000;
+}
+
+.preview-social-icon.tiktok {
+  background: #000000;
+}
+
+.preview-social-icon.youtube {
+  background: #ff0000;
+}
+
+.preview-social-icon.linkedin {
+  background: #0077b5;
+}
+
+.preview-social-icon.facebook {
+  background: #1877f2;
+}
+
+.preview-social-icon.github {
+  background: #333333;
+}
+
+.preview-social-icon.spotify {
+  background: #1db954;
+}
+
+/* Desktop Preview */
+.preview-desktop .preview-social-icon {
+  width: 44px;
+  height: 44px;
+  font-size: 1.2rem;
+}
+
+/* Mobile Preview */
+.preview-mobile .preview-social-icon {
+  width: 36px;
+  height: 36px;
+  font-size: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .preview-social-links {
+    gap: 0.6rem;
+  }
+  
+  .preview-social-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 0.95rem;
+  }
+}

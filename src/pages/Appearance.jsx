@@ -22,7 +22,17 @@ function Appearance() {
     displayName: '',
     bio: '',
     avatar: 'https://www.svgrepo.com/show/384674/account-avatar-profile-user-11.svg',
-    headerImage: ''
+    headerImage: '',
+    socialLinks: {
+      instagram: '',
+      twitter: '',
+      tiktok: '',
+      youtube: '',
+      linkedin: '',
+      facebook: '',
+      github: '',
+      spotify: ''
+    }
   });
 
   const [localCustomization, setLocalCustomization] = useState({
@@ -94,6 +104,8 @@ function Appearance() {
     }
   ];
 
+
+
   useEffect(() => {
     fetchProfile();
     fetchLinks();
@@ -123,7 +135,17 @@ function Appearance() {
           displayName: profile.title || '',
           bio: profile.bio || '',
           avatar: profile.profile_image_url || 'https://www.svgrepo.com/show/384674/account-avatar-profile-user-11.svg',
-          headerImage: '' 
+          headerImage: '',
+          socialLinks: {
+            instagram: '',
+            twitter: '',
+            tiktok: '',
+            youtube: '',
+            linkedin: '',
+            facebook: '',
+            github: '',
+            spotify: ''
+          } 
         });
 
         // Učitaj customization iz baze
@@ -136,7 +158,8 @@ function Appearance() {
             ...prev,
             displayName: customization.profile.displayName || profile.title || '',
             avatar: customization.profile.avatar || profile.profile_image_url || prev.avatar,
-            headerImage: customization.profile.headerImage || ''
+            headerImage: customization.profile.headerImage || '',
+            socialLinks: customization.profile.socialLinks || {}
           }));
         }
         
@@ -203,6 +226,26 @@ function Appearance() {
     } finally {
       //setLoading(false);
     }
+  };
+
+  const getSocialUrl = (platform, username) => {
+    if (!username) return '';
+    
+    // Ukloni spaces i @ symbol
+    const cleanUsername = username.trim().replace('@', '');
+    
+    const baseUrls = {
+      instagram: 'https://instagram.com/',
+      twitter: 'https://twitter.com/',
+      tiktok: 'https://tiktok.com/@',
+      youtube: 'https://youtube.com/@',
+      linkedin: 'https://linkedin.com/in/',
+      facebook: 'https://facebook.com/',
+      github: 'https://github.com/',
+      spotify: 'https://open.spotify.com/user/'
+    };
+    
+    return baseUrls[platform] + cleanUsername;
   };
 
   // Handle profile image upload
@@ -316,7 +359,7 @@ function Appearance() {
           displayName: localProfile.displayName,
           avatar: localProfile.avatar,
           headerImage: localProfile.headerImage,
-          socialLinks: {}
+          socialLinks: localProfile.socialLinks
         },
         theme: {
           preset: 'custom'
@@ -534,6 +577,177 @@ function Appearance() {
                         <small className={localProfile.bio.length >= 150 ? 'text-danger' : ''}>
                           {localProfile.bio.length}/150 characters
                         </small>
+                      </div>
+                    </div>
+
+                    {/* Social Media Links */}
+                    <div className="setting-group">
+                      <label>
+                        <i className="bi bi-share me-2"></i>
+                        Social Media Links
+                      </label>
+                      <small className="mb-3">Add your social media profiles</small>
+                      
+                      <div className="social-links-grid">
+                        {/* Instagram */}
+                        <div className="social-link-item">
+                          <div className="social-link-icon instagram">
+                            <i className="bi bi-instagram"></i>
+                          </div>
+                          <input
+                            type="url"
+                            className="social-link-input"
+                            placeholder="Instagram username"
+                            value={localProfile.socialLinks?.instagram || ''}
+                            onChange={(e) => setLocalProfile({
+                              ...localProfile,
+                              socialLinks: {
+                                ...localProfile.socialLinks,
+                                instagram: e.target.value
+                              }
+                            })}
+                          />
+                        </div>
+
+                        {/* Twitter */}
+                        <div className="social-link-item">
+                          <div className="social-link-icon twitter">
+                            <i className="bi bi-twitter-x"></i>
+                          </div>
+                          <input
+                            type="url"
+                            className="social-link-input"
+                            placeholder="Twitter/X username"
+                            value={localProfile.socialLinks?.twitter || ''}
+                            onChange={(e) => setLocalProfile({
+                              ...localProfile,
+                              socialLinks: {
+                                ...localProfile.socialLinks,
+                                twitter: e.target.value
+                              }
+                            })}
+                          />
+                        </div>
+
+                        {/* TikTok */}
+                        <div className="social-link-item">
+                          <div className="social-link-icon tiktok">
+                            <i className="bi bi-tiktok"></i>
+                          </div>
+                          <input
+                            type="url"
+                            className="social-link-input"
+                            placeholder="TikTok username"
+                            value={localProfile.socialLinks?.tiktok || ''}
+                            onChange={(e) => setLocalProfile({
+                              ...localProfile,
+                              socialLinks: {
+                                ...localProfile.socialLinks,
+                                tiktok: e.target.value
+                              }
+                            })}
+                          />
+                        </div>
+
+                        {/* YouTube */}
+                        <div className="social-link-item">
+                          <div className="social-link-icon youtube">
+                            <i className="bi bi-youtube"></i>
+                          </div>
+                          <input
+                            type="url"
+                            className="social-link-input"
+                            placeholder="YouTube channel"
+                            value={localProfile.socialLinks?.youtube || ''}
+                            onChange={(e) => setLocalProfile({
+                              ...localProfile,
+                              socialLinks: {
+                                ...localProfile.socialLinks,
+                                youtube: e.target.value
+                              }
+                            })}
+                          />
+                        </div>
+
+                        {/* LinkedIn */}
+                        <div className="social-link-item">
+                          <div className="social-link-icon linkedin">
+                            <i className="bi bi-linkedin"></i>
+                          </div>
+                          <input
+                            type="url"
+                            className="social-link-input"
+                            placeholder="LinkedIn profile"
+                            value={localProfile.socialLinks?.linkedin || ''}
+                            onChange={(e) => setLocalProfile({
+                              ...localProfile,
+                              socialLinks: {
+                                ...localProfile.socialLinks,
+                                linkedin: e.target.value
+                              }
+                            })}
+                          />
+                        </div>
+
+                        {/* Facebook */}
+                        <div className="social-link-item">
+                          <div className="social-link-icon facebook">
+                            <i className="bi bi-facebook"></i>
+                          </div>
+                          <input
+                            type="url"
+                            className="social-link-input"
+                            placeholder="Facebook profile"
+                            value={localProfile.socialLinks?.facebook || ''}
+                            onChange={(e) => setLocalProfile({
+                              ...localProfile,
+                              socialLinks: {
+                                ...localProfile.socialLinks,
+                                facebook: e.target.value
+                              }
+                            })}
+                          />
+                        </div>
+
+                        {/* GitHub */}
+                        <div className="social-link-item">
+                          <div className="social-link-icon github">
+                            <i className="bi bi-github"></i>
+                          </div>
+                          <input
+                            type="url"
+                            className="social-link-input"
+                            placeholder="GitHub username"
+                            value={localProfile.socialLinks?.github || ''}
+                            onChange={(e) => setLocalProfile({
+                              ...localProfile,
+                              socialLinks: {
+                                ...localProfile.socialLinks,
+                                github: e.target.value
+                              }
+                            })}
+                          />
+                        </div>
+
+                        {/* Spotify */}
+                        <div className="social-link-item">
+                          <div className="social-link-icon spotify">
+                            <i className="bi bi-spotify"></i>
+                          </div>
+                          <input
+                            type="url"
+                            className="social-link-input"
+                            placeholder="Spotify profile"
+                            value={localProfile.socialLinks?.spotify || ''}
+                            onChange={(e) => setLocalProfile({
+                              ...localProfile,
+                              socialLinks: {
+                                ...localProfile.socialLinks,
+                                spotify: e.target.value
+                              }
+                            })}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -860,6 +1074,92 @@ function Appearance() {
                         />
                         <h2>{localProfile.displayName}</h2>
                         <p>{localProfile.bio}</p>
+
+                        {/* Social Links Icons - DODAJ OVO */}
+                        {Object.entries(localProfile.socialLinks || {}).some(([_, url]) => url) && (
+                          <div className="preview-social-links">
+                            {localProfile.socialLinks.instagram && (
+                              <a 
+                                href={getSocialUrl('instagram', localProfile.socialLinks.instagram)} 
+                                className="preview-social-icon instagram"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <i className="bi bi-instagram"></i>
+                              </a>
+                            )}
+                            {localProfile.socialLinks.twitter && (
+                              <a 
+                                href={getSocialUrl('twitter', localProfile.socialLinks.twitter)} 
+                                className="preview-social-icon twitter"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <i className="bi bi-twitter-x"></i>
+                              </a>
+                            )}
+                            {localProfile.socialLinks.tiktok && (
+                              <a 
+                                href={getSocialUrl('tiktok', localProfile.socialLinks.tiktok)} 
+                                className="preview-social-icon tiktok"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <i className="bi bi-tiktok"></i>
+                              </a>
+                            )}
+                            {localProfile.socialLinks.youtube && (
+                              <a 
+                                href={getSocialUrl('youtube', localProfile.socialLinks.youtube)} 
+                                className="preview-social-icon youtube"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <i className="bi bi-youtube"></i>
+                              </a>
+                            )}
+                            {localProfile.socialLinks.linkedin && (
+                              <a 
+                                href={getSocialUrl('linkedin', localProfile.socialLinks.linkedin)} 
+                                className="preview-social-icon linkedin"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <i className="bi bi-linkedin"></i>
+                              </a>
+                            )}
+                            {localProfile.socialLinks.facebook && (
+                              <a 
+                                href={getSocialUrl('facebook', localProfile.socialLinks.facebook)} 
+                                className="preview-social-icon facebook"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <i className="bi bi-facebook"></i>
+                              </a>
+                            )}
+                            {localProfile.socialLinks.github && (
+                              <a 
+                                href={getSocialUrl('github', localProfile.socialLinks.github)} 
+                                className="preview-social-icon github"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <i className="bi bi-github"></i>
+                              </a>
+                            )}
+                            {localProfile.socialLinks.spotify && (
+                              <a 
+                                href={getSocialUrl('spotify', localProfile.socialLinks.spotify)} 
+                                className="preview-social-icon spotify"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <i className="bi bi-spotify"></i>
+                              </a>
+                            )}
+                          </div>
+                        )}
                     </div>
 
                     {/* Links Preview */}
