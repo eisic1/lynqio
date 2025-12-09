@@ -40,6 +40,12 @@ function Appearance() {
     backgroundColor: '#ffffff',
     backgroundType: 'color',
     backgroundImage: '',
+    backgroundGradient: { 
+      enabled: false,
+      colorStart: '#667eea',
+      colorEnd: '#764ba2',
+      direction: 'to bottom right'
+    },
     buttonColor: '#667eea',
     buttonStyle: 'rounded',
     font: 'inter',
@@ -171,7 +177,13 @@ function Appearance() {
             ...prev,
             backgroundColor: customization.background.color || '#ffffff',
             backgroundType: customization.background.type || 'color',
-            backgroundImage: customization.background.image || ''
+            backgroundImage: customization.background.image || '',
+            backgroundGradient: customization.background.gradient || { 
+              enabled: false,
+              colorStart: '#667eea',
+              colorEnd: '#764ba2',
+              direction: ''
+            }
           }));
         }
         
@@ -370,7 +382,8 @@ function Appearance() {
         background: {
           type: localCustomization.backgroundType,
           color: localCustomization.backgroundColor,
-          image: localCustomization.backgroundImage
+          image: localCustomization.backgroundImage,
+          gradient: localCustomization.backgroundGradient
         },
         buttons: {
           color: localCustomization.buttonColor,
@@ -862,6 +875,16 @@ function Appearance() {
                         Color
                       </button>
                       <button
+                        className={`toggle-btn ${localCustomization.backgroundType === 'gradient' ? 'active' : ''}`}
+                        onClick={() => setLocalCustomization({
+                          ...localCustomization,
+                          backgroundType: 'gradient'
+                        })}
+                      >
+                        <i className="bi bi-brightness-alt-high"></i>
+                        Gradient
+                      </button>
+                      <button
                         className={`toggle-btn ${localCustomization.backgroundType === 'image' ? 'active' : ''}`}
                         onClick={() => setLocalCustomization({
                           ...localCustomization,
@@ -889,6 +912,79 @@ function Appearance() {
                           })}
                         />
                         <span className="color-value">{localCustomization.backgroundColor}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Background Gradient - DODAJ OVO */}
+                  {localCustomization.backgroundType === 'gradient' && (
+                    <div className="setting-group">
+                      <label>Gradient Colors</label>
+                      
+                      {/* Start Color */}
+                      <div className="gradient-color-row">
+                        <span className="gradient-label">Start</span>
+                        <div className="color-picker-container">
+                          <input 
+                            type="color"
+                            className="color-picker"
+                            value={localCustomization.backgroundGradient.colorStart}
+                            onChange={(e) => setLocalCustomization({
+                              ...localCustomization,
+                              backgroundGradient: {
+                                ...localCustomization.backgroundGradient,
+                                colorStart: e.target.value
+                              }
+                            })}
+                          />
+                          <span className="color-value">{localCustomization.backgroundGradient.colorStart}</span>
+                        </div>
+                      </div>
+
+                      {/* End Color */}
+                      <div className="gradient-color-row">
+                        <span className="gradient-label">End</span>
+                        <div className="color-picker-container">
+                          <input 
+                            type="color"
+                            className="color-picker"
+                            value={localCustomization.backgroundGradient.colorEnd}
+                            onChange={(e) => setLocalCustomization({
+                              ...localCustomization,
+                              backgroundGradient: {
+                                ...localCustomization.backgroundGradient,
+                                colorEnd: e.target.value
+                              }
+                            })}
+                          />
+                          <span className="color-value">{localCustomization.backgroundGradient.colorEnd}</span>
+                        </div>
+                      </div>
+
+                      {/* Gradient Direction */}
+                      <div className="setting-group mt-3">
+                        <label>Direction</label>
+                        <select
+                          className="setting-select"
+                          value={localCustomization.backgroundGradient.direction}
+                          onChange={(e) => setLocalCustomization({
+                            ...localCustomization,
+                            backgroundGradient: {
+                              ...localCustomization.backgroundGradient,
+                              direction: e.target.value
+                            }
+                          })}
+                        >
+                          <option value="to bottom">Top to Bottom ↓</option>
+                          <option value="to top">Bottom to Top ↑</option>
+                          <option value="to right">Left to Right →</option>
+                          <option value="to left">Right to Left ←</option>
+                          <option value="to bottom right">Diagonal ↘</option>
+                          <option value="to bottom left">Diagonal ↙</option>
+                          <option value="to top right">Diagonal ↗</option>
+                          <option value="to top left">Diagonal ↖</option>
+                          <option value="circle">Radial (Center)</option>
+                        </select>
                       </div>
                     </div>
                   )}
@@ -1089,18 +1185,20 @@ function Appearance() {
 
                 <div className={`preview-device preview-${previewDevice}`}>
                     <div 
-                    className="preview-content"
-                    style={{ 
+                      className="preview-content"
+                      style={{ 
                         backgroundColor: localCustomization.backgroundType === 'color' 
-                            ? localCustomization.backgroundColor 
-                            : 'transparent',
+                          ? localCustomization.backgroundColor 
+                          : 'transparent',
                         backgroundImage: localCustomization.backgroundType === 'image' && localCustomization.backgroundImage
-                            ? `url(${localCustomization.backgroundImage})`
-                            : 'none',
+                          ? `url(${localCustomization.backgroundImage})`
+                          : localCustomization.backgroundType === 'gradient'
+                          ? `linear-gradient(${localCustomization.backgroundGradient.direction}, ${localCustomization.backgroundGradient.colorStart}, ${localCustomization.backgroundGradient.colorEnd})`
+                          : 'none',
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
                         backgroundRepeat: 'no-repeat'
-                    }}
+                      }}
                     >
 
                       {/* Header Image - DODAJ OVO */}
