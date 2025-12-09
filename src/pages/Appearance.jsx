@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useProfile } from '../context/ProfileContext';
 import { linksAPI } from '../api/links';
 import { profileAPI } from '../api/profile';
@@ -6,14 +6,17 @@ import { useToast } from '../components/toast/ToastContainer';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
 import '../styles/Appearance.css';
+import EmojiPicker from 'emoji-picker-react';
 
 function Appearance() {
+  const bioTextareaRef = useRef(null);
   const { profileData, setProfileData } = useProfile();
   let [links, setLinks] = useState([]);
   const toast = useToast();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   
   const [localProfile, setLocalProfile] = useState({
     displayName: '',
@@ -94,6 +97,17 @@ function Appearance() {
   useEffect(() => {
     fetchProfile();
     fetchLinks();
+
+    const handleClickOutside = (e) => {
+      if (showEmojiPicker && 
+          !e.target.closest('.emoji-picker-container') && 
+          !e.target.closest('.btn-emoji-picker')) {
+        setShowEmojiPicker(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const fetchProfile = async () => {
@@ -249,6 +263,33 @@ function Appearance() {
         });
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  // Handle emoji selection
+  const handleEmojiClick = (emojiObject) => {
+    const textarea = bioTextareaRef.current;
+    
+    if (textarea) {
+      const cursorPosition = textarea.selectionStart;
+      const textBefore = localProfile.bio.substring(0, cursorPosition);
+      const textAfter = localProfile.bio.substring(cursorPosition);
+      const newBio = textBefore + emojiObject.emoji + textAfter;
+      
+      // Check length limit
+      if (newBio.length <= 150) {
+        setLocalProfile({
+          ...localProfile,
+          bio: newBio
+        });
+        
+        // Set cursor position after emoji
+        setTimeout(() => {
+          const newPosition = cursorPosition + emojiObject.emoji.length;
+          textarea.setSelectionRange(newPosition, newPosition);
+          textarea.focus();
+        }, 0);
+      }
     }
   };
 
@@ -451,17 +492,49 @@ function Appearance() {
                     {/* Bio */}
                     <div className="setting-group">
                       <label>Bio</label>
-                      <textarea 
-                        className="setting-textarea"
-                        value={localProfile.bio}
-                        onChange={(e) => setLocalProfile({
-                          ...localProfile,
-                          bio: e.target.value
-                        })}
-                        placeholder="Tell people about yourself..."
-                        rows="3"
-                      />
-                      <small>{localProfile.bio.length}/150 characters</small>
+                      <div className="bio-input-wrapper">
+                        <textarea 
+                          ref={bioTextareaRef}
+                          className="setting-textarea"
+                          value={localProfile.bio}
+                          onChange={(e) => {
+                            if (e.target.value.length <= 150) {
+                              setLocalProfile({
+                                ...localProfile,
+                                bio: e.target.value
+                              });
+                            }
+                          }}
+                          placeholder="Tell people about yourself..."
+                          rows="3"
+                        />
+                        <button 
+                          className="btn-emoji-picker"
+                          onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                          type="button"
+                        >
+                          <i className="bi bi-emoji-smile"></i>
+                        </button>
+                      </div>
+                      
+                      {/* Emoji Picker */}
+                      {showEmojiPicker && (
+                        <div className="emoji-picker-container">
+                          <EmojiPicker 
+                            onEmojiClick={handleEmojiClick}
+                            width="100%"
+                            height="350px"
+                            searchPlaceholder="Search emoji..."
+                            previewConfig={{ showPreview: false }}
+                          />
+                        </div>
+                      )}
+                      
+                      <div className="bio-footer">
+                        <small className={localProfile.bio.length >= 150 ? 'text-danger' : ''}>
+                          {localProfile.bio.length}/150 characters
+                        </small>
+                      </div>
                     </div>
                   </div>
               </div>
