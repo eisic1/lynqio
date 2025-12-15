@@ -48,6 +48,9 @@ function Appearance() {
     },
     buttonColor: '#667eea',
     buttonStyle: 'rounded',
+    buttonShadow: true, 
+    buttonBorder: 0, 
+    buttonHoverEffect: 'lift',
     font: 'inter',
     textColor: '#2d3748'
   });
@@ -192,7 +195,10 @@ function Appearance() {
           setLocalCustomization(prev => ({
             ...prev,
             buttonColor: customization.buttons.color || '#667eea',
-            buttonStyle: customization.buttons.style || 'rounded'
+            buttonStyle: customization.buttons.style || 'rounded',
+            buttonShadow: customization.buttons.shadow !== undefined ? customization.buttons.shadow : true, 
+            buttonBorder: customization.buttons.border || 0, 
+            buttonHoverEffect: customization.buttons.hoverEffect || 'lift'
           }));
         }
         
@@ -387,7 +393,10 @@ function Appearance() {
         },
         buttons: {
           color: localCustomization.buttonColor,
-          style: localCustomization.buttonStyle
+          style: localCustomization.buttonStyle,
+          shadow: localCustomization.buttonShadow,
+          border: localCustomization.buttonBorder,
+          hoverEffect: localCustomization.buttonHoverEffect
         },
         typography: {
           fontFamily: localCustomization.font,
@@ -1062,7 +1071,7 @@ function Appearance() {
                   {/* Button Style */}
                   <div className="setting-group">
                     <label>Button Style</label>
-                    <div className="button-style-options">
+                    <div className="button-style-grid">
                       <button
                         className={`style-option rounded ${localCustomization.buttonStyle === 'rounded' ? 'active' : ''}`}
                         onClick={() => setLocalCustomization({
@@ -1070,8 +1079,10 @@ function Appearance() {
                           buttonStyle: 'rounded'
                         })}
                       >
-                        Rounded
+                        <div className="style-preview rounded"></div>
+                        <span>Rounded</span>
                       </button>
+                      
                       <button
                         className={`style-option square ${localCustomization.buttonStyle === 'square' ? 'active' : ''}`}
                         onClick={() => setLocalCustomization({
@@ -1079,8 +1090,10 @@ function Appearance() {
                           buttonStyle: 'square'
                         })}
                       >
-                        Square
+                        <div className="style-preview square"></div>
+                        <span>Square</span>
                       </button>
+                      
                       <button
                         className={`style-option pill ${localCustomization.buttonStyle === 'pill' ? 'active' : ''}`}
                         onClick={() => setLocalCustomization({
@@ -1088,7 +1101,267 @@ function Appearance() {
                           buttonStyle: 'pill'
                         })}
                       >
-                        Pill
+                        <div className="style-preview pill"></div>
+                        <span>Pill</span>
+                      </button>
+                      
+                      <button
+                        className={`style-option smooth ${localCustomization.buttonStyle === 'smooth' ? 'active' : ''}`}
+                        onClick={() => setLocalCustomization({
+                          ...localCustomization,
+                          buttonStyle: 'smooth'
+                        })}
+                      >
+                        <div className="style-preview smooth"></div>
+                        <span>Smooth</span>
+                      </button>
+                      
+                      <button
+                        className={`style-option hexagon ${localCustomization.buttonStyle === 'hexagon' ? 'active' : ''}`}
+                        onClick={() => setLocalCustomization({
+                          ...localCustomization,
+                          buttonStyle: 'hexagon'
+                        })}
+                      >
+                        <div className="style-preview hexagon"></div>
+                        <span>Hexagon</span>
+                      </button>
+                      
+                      <button
+                        className={`style-option skewed ${localCustomization.buttonStyle === 'skewed' ? 'active' : ''}`}
+                        onClick={() => setLocalCustomization({
+                          ...localCustomization,
+                          buttonStyle: 'skewed'
+                        })}
+                      >
+                        <div className="style-preview skewed"></div>
+                        <span>Skewed</span>
+                      </button>
+                      
+                      <button
+                        className={`style-option cut-corner ${localCustomization.buttonStyle === 'cut-corner' ? 'active' : ''}`}
+                        onClick={() => setLocalCustomization({
+                          ...localCustomization,
+                          buttonStyle: 'cut-corner'
+                        })}
+                      >
+                        <div className="style-preview cut-corner"></div>
+                        <span>Cut Corner</span>
+                      </button>
+                      
+                      <button
+                        className={`style-option chevron ${localCustomization.buttonStyle === 'chevron' ? 'active' : ''}`}
+                        onClick={() => setLocalCustomization({
+                          ...localCustomization,
+                          buttonStyle: 'chevron'
+                        })}
+                      >
+                        <div className="style-preview chevron"></div>
+                        <span>Chevron</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Button Shadow - DODAJ OVO */}
+                  <div className="setting-group">
+                    <label>Button Shadow</label>
+                    <div className="toggle-switch-container">
+                      <button
+                        className={`toggle-switch ${localCustomization.buttonShadow ? 'active' : ''}`}
+                        onClick={() => setLocalCustomization({
+                          ...localCustomization,
+                          buttonShadow: !localCustomization.buttonShadow
+                        })}
+                      >
+                        <div className="toggle-switch-slider"></div>
+                      </button>
+                      <span className="toggle-switch-label">
+                        {localCustomization.buttonShadow ? 'Enabled' : 'Disabled'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Button Border - DODAJ OVO */}
+                  <div className="setting-group">
+                    <label>Button Border</label>
+                    <div className="border-width-options">
+                      <button
+                        className={`border-option ${localCustomization.buttonBorder === 0 ? 'active' : ''}`}
+                        onClick={() => setLocalCustomization({
+                          ...localCustomization,
+                          buttonBorder: 0
+                        })}
+                      >
+                        <div className="border-preview no-border"></div>
+                        <span>None</span>
+                      </button>
+                      <button
+                        className={`border-option ${localCustomization.buttonBorder === 2 ? 'active' : ''}`}
+                        onClick={() => setLocalCustomization({
+                          ...localCustomization,
+                          buttonBorder: 2
+                        })}
+                      >
+                        <div className="border-preview thin-border"></div>
+                        <span>Thin</span>
+                      </button>
+                      <button
+                        className={`border-option ${localCustomization.buttonBorder === 4 ? 'active' : ''}`}
+                        onClick={() => setLocalCustomization({
+                          ...localCustomization,
+                          buttonBorder: 4
+                        })}
+                      >
+                        <div className="border-preview medium-border"></div>
+                        <span>Medium</span>
+                      </button>
+                      <button
+                        className={`border-option ${localCustomization.buttonBorder === 6 ? 'active' : ''}`}
+                        onClick={() => setLocalCustomization({
+                          ...localCustomization,
+                          buttonBorder: 6
+                        })}
+                      >
+                        <div className="border-preview thick-border"></div>
+                        <span>Thick</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Hover Effect */}
+                  <div className="setting-group">
+                    <label>Hover Effect</label>
+                    <div className="hover-effect-grid">
+                      <button
+                        className={`hover-option ${localCustomization.buttonHoverEffect === 'lift' ? 'active' : ''}`}
+                        onClick={() => setLocalCustomization({
+                          ...localCustomization,
+                          buttonHoverEffect: 'lift'
+                        })}
+                      >
+                        <i className="bi bi-arrow-up"></i>
+                        <span>Lift</span>
+                      </button>
+                      
+                      <button
+                        className={`hover-option ${localCustomization.buttonHoverEffect === 'glow' ? 'active' : ''}`}
+                        onClick={() => setLocalCustomization({
+                          ...localCustomization,
+                          buttonHoverEffect: 'glow'
+                        })}
+                      >
+                        <i className="bi bi-brightness-high"></i>
+                        <span>Glow</span>
+                      </button>
+                      
+                      <button
+                        className={`hover-option ${localCustomization.buttonHoverEffect === 'scale' ? 'active' : ''}`}
+                        onClick={() => setLocalCustomization({
+                          ...localCustomization,
+                          buttonHoverEffect: 'scale'
+                        })}
+                      >
+                        <i className="bi bi-arrows-angle-expand"></i>
+                        <span>Scale</span>
+                      </button>
+                      
+                      <button
+                        className={`hover-option ${localCustomization.buttonHoverEffect === 'bounce' ? 'active' : ''}`}
+                        onClick={() => setLocalCustomization({
+                          ...localCustomization,
+                          buttonHoverEffect: 'bounce'
+                        })}
+                      >
+                        <i className="bi bi-arrow-down-up"></i>
+                        <span>Bounce</span>
+                      </button>
+                      
+                      <button
+                        className={`hover-option ${localCustomization.buttonHoverEffect === 'pulse' ? 'active' : ''}`}
+                        onClick={() => setLocalCustomization({
+                          ...localCustomization,
+                          buttonHoverEffect: 'pulse'
+                        })}
+                      >
+                        <i className="bi bi-circle"></i>
+                        <span>Pulse</span>
+                      </button>
+                      
+                      <button
+                        className={`hover-option ${localCustomization.buttonHoverEffect === 'shake' ? 'active' : ''}`}
+                        onClick={() => setLocalCustomization({
+                          ...localCustomization,
+                          buttonHoverEffect: 'shake'
+                        })}
+                      >
+                        <i className="bi bi-phone-vibrate"></i>
+                        <span>Shake</span>
+                      </button>
+                      
+                      <button
+                        className={`hover-option ${localCustomization.buttonHoverEffect === 'swing' ? 'active' : ''}`}
+                        onClick={() => setLocalCustomization({
+                          ...localCustomization,
+                          buttonHoverEffect: 'swing'
+                        })}
+                      >
+                        <i className="bi bi-arrow-left-right"></i>
+                        <span>Swing</span>
+                      </button>
+                      
+                      <button
+                        className={`hover-option ${localCustomization.buttonHoverEffect === 'rotate' ? 'active' : ''}`}
+                        onClick={() => setLocalCustomization({
+                          ...localCustomization,
+                          buttonHoverEffect: 'rotate'
+                        })}
+                      >
+                        <i className="bi bi-arrow-clockwise"></i>
+                        <span>Rotate</span>
+                      </button>
+                      
+                      <button
+                        className={`hover-option ${localCustomization.buttonHoverEffect === 'flip' ? 'active' : ''}`}
+                        onClick={() => setLocalCustomization({
+                          ...localCustomization,
+                          buttonHoverEffect: 'flip'
+                        })}
+                      >
+                        <i className="bi bi-phone-flip"></i>
+                        <span>Flip</span>
+                      </button>
+                      
+                      <button
+                        className={`hover-option ${localCustomization.buttonHoverEffect === 'neon' ? 'active' : ''}`}
+                        onClick={() => setLocalCustomization({
+                          ...localCustomization,
+                          buttonHoverEffect: 'neon'
+                        })}
+                      >
+                        <i className="bi bi-lightning"></i>
+                        <span>Neon</span>
+                      </button>
+                      
+                      <button
+                        className={`hover-option ${localCustomization.buttonHoverEffect === 'gradient-shift' ? 'active' : ''}`}
+                        onClick={() => setLocalCustomization({
+                          ...localCustomization,
+                          buttonHoverEffect: 'gradient-shift'
+                        })}
+                      >
+                        <i className="bi bi-rainbow"></i>
+                        <span>Gradient</span>
+                      </button>
+                      
+                      <button
+                        className={`hover-option ${localCustomization.buttonHoverEffect === 'none' ? 'active' : ''}`}
+                        onClick={() => setLocalCustomization({
+                          ...localCustomization,
+                          buttonHoverEffect: 'none'
+                        })}
+                      >
+                        <i className="bi bi-dash-circle"></i>
+                        <span>None</span>
                       </button>
                     </div>
                   </div>
@@ -1310,23 +1583,24 @@ function Appearance() {
 
                     {/* Links Preview */}
                     <div className="preview-links">
-                        {links.filter(link => link.is_active).map((link) => (
+                      {links.filter(link => link.is_active).map((link) => (
                         <a
-                            key={link.id}
-                            href={link.url}
-                            className={`preview-link-btn ${localCustomization.buttonStyle}`}
-                            style={{ 
+                          key={link.id}
+                          href={link.url}
+                          className={`preview-link-btn btn-shape-${localCustomization.buttonStyle} hover-${localCustomization.buttonHoverEffect} ${localCustomization.buttonShadow ? 'with-shadow' : ''}`}
+                          style={{ 
                             backgroundColor: localCustomization.buttonColor,
-                            borderRadius: localCustomization.buttonStyle === 'pill' ? '50px' : 
-                                        localCustomization.buttonStyle === 'square' ? '8px' : '12px'
-                            }}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                            border: localCustomization.buttonBorder > 0 
+                              ? `${localCustomization.buttonBorder}px solid rgba(0, 0, 0, 0.2)` 
+                              : 'none'
+                          }}
+                          target="_blank"
+                          rel="noopener noreferrer"
                         >
-                            <i className={`bi ${link.icon}`}></i>
-                            <span>{link.title}</span>
+                          <i className={`bi ${link.icon}`}></i>
+                          <span>{link.title}</span>
                         </a>
-                        ))}
+                      ))}
                     </div>
 
                     {/* Footer */}
