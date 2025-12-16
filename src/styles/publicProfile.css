@@ -278,3 +278,375 @@
     font-size: 0.9rem;
   }
 }
+
+
+/* ==================== HEADER IMAGE ==================== */
+
+.public-header-image {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: -60px;
+  z-index: 1;
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.public-header-image .header-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Gradient overlay za header */
+.public-header-image::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.2));
+  pointer-events: none;
+}
+
+/* ==================== AVATAR SHAPES ==================== */
+
+.public-avatar {
+  position: relative;
+  z-index: 2;
+  transition: transform 0.3s ease;
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border: 4px solid white;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  margin-bottom: 1.5rem;
+}
+
+.public-avatar.circle {
+  border-radius: 50%;
+}
+
+.public-avatar.square {
+  border-radius: 12px;
+}
+
+.public-avatar.rounded {
+  border-radius: 24px;
+}
+
+/* ==================== SOCIAL LINKS ICONS ==================== */
+
+.public-social-links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.public-social-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.3rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.public-social-icon:hover {
+  transform: translateY(-5px) scale(1.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* Social Platform Colors */
+.public-social-icon.instagram {
+  background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+}
+
+.public-social-icon.twitter {
+  background: #000000;
+}
+
+.public-social-icon.tiktok {
+  background: #000000;
+}
+
+.public-social-icon.youtube {
+  background: #ff0000;
+}
+
+.public-social-icon.linkedin {
+  background: #0077b5;
+}
+
+.public-social-icon.facebook {
+  background: #1877f2;
+}
+
+.public-social-icon.github {
+  background: #333333;
+}
+
+.public-social-icon.spotify {
+  background: #1db954;
+}
+
+/* ==================== BUTTON SHAPES ==================== */
+
+.public-link-btn.btn-shape-rounded {
+  border-radius: 12px;
+}
+
+.public-link-btn.btn-shape-square {
+  border-radius: 6px;
+}
+
+.public-link-btn.btn-shape-pill {
+  border-radius: 50px;
+}
+
+.public-link-btn.btn-shape-smooth {
+  border-radius: 20px;
+}
+
+.public-link-btn.btn-shape-hexagon {
+  clip-path: polygon(10% 0%, 90% 0%, 100% 50%, 90% 100%, 10% 100%, 0% 50%);
+  border-radius: 0;
+}
+
+.public-link-btn.btn-shape-skewed {
+  transform: skewX(-5deg);
+  border-radius: 8px;
+}
+
+.public-link-btn.btn-shape-skewed i,
+.public-link-btn.btn-shape-skewed span {
+  transform: skewX(5deg);
+}
+
+.public-link-btn.btn-shape-cut-corner {
+  clip-path: polygon(
+    0 0, 
+    calc(100% - 15px) 0, 
+    100% 15px, 
+    100% 100%, 
+    15px 100%, 
+    0 calc(100% - 15px)
+  );
+  border-radius: 0;
+}
+
+.public-link-btn.btn-shape-chevron {
+  clip-path: polygon(0 0, 95% 0, 100% 50%, 95% 100%, 0 100%, 5% 50%);
+  border-radius: 0;
+  padding-left: 2.5rem;
+  padding-right: 2.5rem;
+}
+
+/* ==================== BUTTON SHADOW ==================== */
+
+.public-link-btn.with-shadow {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* ==================== HOVER EFFECTS ==================== */
+
+/* Lift */
+.public-link-btn.hover-lift:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+}
+
+/* Glow */
+.public-link-btn.hover-glow:hover {
+  box-shadow: 0 0 25px currentColor, 0 0 50px currentColor;
+  filter: brightness(1.2);
+}
+
+/* Scale */
+.public-link-btn.hover-scale:hover {
+  transform: scale(1.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+/* Bounce */
+.public-link-btn.hover-bounce:hover {
+  animation: bounce 0.6s ease;
+}
+
+/* Pulse */
+.public-link-btn.hover-pulse:hover {
+  animation: pulse 1s infinite;
+}
+
+/* Shake */
+.public-link-btn.hover-shake:hover {
+  animation: shake 0.5s ease;
+}
+
+/* Swing */
+.public-link-btn.hover-swing:hover {
+  animation: swing 0.6s ease;
+  transform-origin: top center;
+}
+
+/* Rotate */
+.public-link-btn.hover-rotate:hover {
+  transform: rotate(5deg) scale(1.05);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+/* Flip */
+.public-link-btn.hover-flip:hover {
+  transform: rotateY(180deg);
+}
+
+.public-link-btn.hover-flip {
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+/* Neon */
+.public-link-btn.hover-neon:hover {
+  text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #fff;
+  box-shadow: 
+    0 0 10px currentColor,
+    0 0 20px currentColor,
+    0 0 40px currentColor,
+    0 0 80px currentColor;
+  animation: neonFlicker 1.5s infinite alternate;
+}
+
+/* Gradient Shift */
+.public-link-btn.hover-gradient-shift {
+  background: linear-gradient(90deg, currentColor, currentColor) !important;
+  background-size: 200% 100% !important;
+  transition: background-position 0.5s ease, transform 0.3s ease;
+}
+
+.public-link-btn.hover-gradient-shift:hover {
+  background-position: 100% 0 !important;
+  filter: brightness(1.2);
+  transform: scale(1.03);
+}
+
+/* None */
+.public-link-btn.hover-none:hover {
+  transform: translateY(-4px) scale(1.02);
+}
+
+/* Adjust skewed shape with hover */
+.public-link-btn.btn-shape-skewed:hover {
+  transform: skewX(-5deg) translateY(-6px);
+}
+
+.public-link-btn.btn-shape-skewed.hover-scale:hover {
+  transform: skewX(-5deg) scale(1.08);
+}
+
+/* ==================== AVATAR SHAPES ==================== */
+
+.public-avatar {
+  position: relative;
+  z-index: 2;
+  transition: transform 0.3s ease;
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border: 4px solid white;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  margin-bottom: 1.5rem;
+}
+
+.public-avatar:hover {
+  transform: scale(1.05);
+}
+
+.public-avatar.circle {
+  border-radius: 50%;
+}
+
+.public-avatar.square {
+  border-radius: 12px;
+}
+
+.public-avatar.rounded {
+  border-radius: 24px;
+}
+
+/* ==================== RESPONSIVE ==================== */
+
+@media (max-width: 768px) {
+  .public-header-image {
+    height: 160px;
+    margin-bottom: -50px;
+  }
+
+  .public-avatar {
+    width: 100px;
+    height: 100px;
+    border-width: 3px;
+  }
+
+  .public-avatar.square {
+    border-radius: 10px;
+  }
+
+  .public-avatar.rounded {
+    border-radius: 20px;
+  }
+
+  .public-social-icon {
+    width: 44px;
+    height: 44px;
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .public-header-image {
+    height: 140px;
+    margin-bottom: -40px;
+    border-radius: 16px;
+  }
+
+  .public-avatar {
+    width: 90px;
+    height: 90px;
+    border-width: 3px;
+  }
+
+  .public-avatar.square {
+    border-radius: 8px;
+  }
+
+  .public-avatar.rounded {
+    border-radius: 18px;
+  }
+
+  .public-social-links {
+    gap: 0.75rem;
+  }
+
+  .public-social-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+  }
+
+  .public-link-btn.btn-shape-chevron {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}

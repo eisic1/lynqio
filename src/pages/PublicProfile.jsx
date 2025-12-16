@@ -11,11 +11,37 @@ function PublicProfile() {
   const [notFound, setNotFound] = useState(false);
   const [profileData, setProfileData] = useState(null);
   const [customization, setCustomization] = useState({
-    backgroundColor: '#ffffff',
-    buttonColor: '#667eea',
-    textColor: '#2d3748',
-    buttonStyle: 'rounded',
-    font: 'inter'
+    profile: {
+      displayName: '',
+      avatar: '',
+      headerImage: '',
+      avatarShape: 'circle',
+      socialLinks: {}
+    },
+    theme: {
+      preset: 'light'
+    },
+    background: {
+      type: 'color',
+      color: '#ffffff',
+      image: '',
+      gradient: {
+        colorStart: '#667eea',
+        colorEnd: '#764ba2',
+        direction: 'to bottom right'
+      }
+    },
+    buttons: {
+      color: '#667eea',
+      style: 'rounded',
+      shadow: true,
+      border: 0,
+      hoverEffect: 'lift'
+    },
+    typography: {
+      fontFamily: 'Inter, sans-serif',
+      textColor: '#2d3748'
+    }
   });
 
   useEffect(() => {
@@ -41,11 +67,44 @@ function PublicProfile() {
           links: profile.links || []
         });
 
-        // Parse theme ako postoji
-        if (profile.theme) {
+        // ✅ Parse customization iz baze (umesto theme)
+        if (profile.customization) {
+          setCustomization(profile.customization);
+        }
+        // Fallback na stari theme format
+        else if (profile.theme) {
           try {
             const parsedTheme = JSON.parse(profile.theme);
-            setCustomization(parsedTheme);
+            setCustomization({
+              profile: {
+                displayName: parsedTheme.displayName || profile.title,
+                avatar: parsedTheme.avatar || profile.profile_image_url,
+                headerImage: '',
+                avatarShape: 'circle',
+                socialLinks: {}
+              },
+              background: {
+                type: parsedTheme.backgroundType || 'color',
+                color: parsedTheme.backgroundColor || '#ffffff',
+                image: parsedTheme.backgroundImage || '',
+                gradient: {
+                  colorStart: '#667eea',
+                  colorEnd: '#764ba2',
+                  direction: 'to bottom right'
+                }
+              },
+              buttons: {
+                color: parsedTheme.buttonColor || '#667eea',
+                style: parsedTheme.buttonStyle || 'rounded',
+                shadow: true,
+                border: 0,
+                hoverEffect: 'lift'
+              },
+              typography: {
+                fontFamily: parsedTheme.font || 'Inter, sans-serif',
+                textColor: parsedTheme.textColor || '#2d3748'
+              }
+            });
           } catch (e) {
             console.log('Using default theme');
           }
@@ -125,13 +184,19 @@ function PublicProfile() {
     <div 
       className="public-profile-container"
       style={{
-        background: customization.backgroundType === 'color' 
-          ? customization.backgroundColor 
-          : `url(${customization.backgroundImage})`,
+        backgroundColor: customization.background.type === 'color' 
+          ? customization.background.color 
+          : 'transparent',
+        backgroundImage: customization.background.type === 'image' && customization.background.image
+          ? `url(${customization.background.image})`
+          : customization.background.type === 'gradient'
+          ? `linear-gradient(${customization.background.gradient.direction}, ${customization.background.gradient.colorStart}, ${customization.background.gradient.colorEnd})`
+          : 'none',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        color: customization.textColor,
-        fontFamily: customization.font
+        backgroundRepeat: 'no-repeat',
+        fontFamily: customization.typography.fontFamily,
+        color: customization.typography.textColor
       }}
     >
       <div className="public-profile-content">
@@ -143,24 +208,121 @@ function PublicProfile() {
 
         {/* Profile Header */}
         <div className="public-profile-header">
+          {/* Header Image */}
+          {customization.profile?.headerImage && (
+            <div className="public-header-image">
+              <img 
+                src={customization.profile.headerImage} 
+                alt="Header" 
+                className="header-img"
+              />
+            </div>
+          )}
+          
           <img 
             src={profileData.avatar} 
             alt={profileData.displayName}
-            className="public-avatar"
+            className={`public-avatar ${customization.profile?.avatarShape || 'circle'}`}
           />
           <h1 
             className="public-name"
-            style={{ color: customization.textColor }}
+            style={{ color: customization.typography.textColor }}
           >
             {profileData.displayName}
           </h1>
           {profileData.bio && (
             <p 
               className="public-bio"
-              style={{ color: customization.textColor }}
+              style={{ color: customization.typography.textColor }}
             >
               {profileData.bio}
             </p>
+          )}
+          
+          {/* Social Links Icons */}
+          {customization.profile?.socialLinks && Object.entries(customization.profile.socialLinks).some(([_, url]) => url) && (
+            <div className="public-social-links">
+              {customization.profile.socialLinks.instagram && (
+                <a 
+                  href={`https://instagram.com/${customization.profile.socialLinks.instagram}`}
+                  className="public-social-icon instagram"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <i className="bi bi-instagram"></i>
+                </a>
+              )}
+              {customization.profile.socialLinks.twitter && (
+                <a 
+                  href={`https://twitter.com/${customization.profile.socialLinks.twitter}`}
+                  className="public-social-icon twitter"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <i className="bi bi-twitter-x"></i>
+                </a>
+              )}
+              {customization.profile.socialLinks.tiktok && (
+                <a 
+                  href={`https://tiktok.com/@${customization.profile.socialLinks.tiktok}`}
+                  className="public-social-icon tiktok"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <i className="bi bi-tiktok"></i>
+                </a>
+              )}
+              {customization.profile.socialLinks.youtube && (
+                <a 
+                  href={`https://youtube.com/@${customization.profile.socialLinks.youtube}`}
+                  className="public-social-icon youtube"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <i className="bi bi-youtube"></i>
+                </a>
+              )}
+              {customization.profile.socialLinks.linkedin && (
+                <a 
+                  href={`https://linkedin.com/in/${customization.profile.socialLinks.linkedin}`}
+                  className="public-social-icon linkedin"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <i className="bi bi-linkedin"></i>
+                </a>
+              )}
+              {customization.profile.socialLinks.facebook && (
+                <a 
+                  href={`https://facebook.com/${customization.profile.socialLinks.facebook}`}
+                  className="public-social-icon facebook"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <i className="bi bi-facebook"></i>
+                </a>
+              )}
+              {customization.profile.socialLinks.github && (
+                <a 
+                  href={`https://github.com/${customization.profile.socialLinks.github}`}
+                  className="public-social-icon github"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <i className="bi bi-github"></i>
+                </a>
+              )}
+              {customization.profile.socialLinks.spotify && (
+                <a 
+                  href={`https://open.spotify.com/user/${customization.profile.socialLinks.spotify}`}
+                  className="public-social-icon spotify"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <i className="bi bi-spotify"></i>
+                </a>
+              )}
+            </div>
           )}
         </div>
 
@@ -173,17 +335,17 @@ function PublicProfile() {
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`public-link-btn ${customization.buttonStyle}`}
+                className={`public-link-btn btn-shape-${customization.buttons.style} hover-${customization.buttons.hoverEffect} ${customization.buttons.shadow ? 'with-shadow' : ''}`}
                 onClick={() => handleLinkClick(link.id)}
                 style={{
-                  backgroundColor: customization.buttonColor,
-                  borderRadius: customization.buttonStyle === 'pill' ? '50px' : 
-                               customization.buttonStyle === 'square' ? '8px' : '12px'
+                  backgroundColor: customization.buttons.color,
+                  border: customization.buttons.border > 0 
+                    ? `${customization.buttons.border}px solid rgba(0, 0, 0, 0.2)` 
+                    : 'none'
                 }}
               >
                 <i className={`bi ${link.icon}`}></i>
                 <span>{link.title}</span>
-                <i className="bi bi-arrow-up-right link-external-icon"></i>
               </a>
             ))
           ) : (
@@ -196,7 +358,7 @@ function PublicProfile() {
 
         {/* Footer */}
         <div className="public-footer">
-          <p style={{ color: customization.textColor, opacity: 0.6 }}>
+          <p style={{ color: customization.typography.textColor, opacity: 0.6 }}>
             Create your own link in bio with{' '}
             <a href="/" className="footer-brand">
               <strong>Lynqio</strong>

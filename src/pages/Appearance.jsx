@@ -60,12 +60,14 @@ function Appearance() {
 
   // Font options
   const fonts = [
-    { name: 'Inter', value: 'inter' },
-    { name: 'Roboto', value: 'roboto' },
-    { name: 'Poppins', value: 'poppins' },
-    { name: 'Montserrat', value: 'montserrat' },
-    { name: 'Open Sans', value: 'open-sans' },
-    { name: 'Lato', value: 'lato' }
+    { name: 'Inter', value: 'Inter, sans-serif' },
+    { name: 'Roboto', value: 'Roboto, sans-serif' },
+    { name: 'Poppins', value: 'Poppins, sans-serif' },
+    { name: 'Montserrat', value: 'Montserrat, sans-serif' },
+    { name: 'Open Sans', value: 'Open Sans, sans-serif' },
+    { name: 'Lato', value: 'Lato, sans-serif' },
+    { name: 'Playfair Display', value: 'Playfair Display, serif' },
+    { name: 'Raleway', value: 'Raleway, sans-serif' }
   ];
 
   // Theme presets
@@ -1470,7 +1472,9 @@ function Appearance() {
                           : 'none',
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
-                        backgroundRepeat: 'no-repeat'
+                        backgroundRepeat: 'no-repeat',
+                        fontFamily: localCustomization.font, 
+                        color: localCustomization.textColor
                       }}
                     >
 
@@ -1492,7 +1496,7 @@ function Appearance() {
                         className={`preview-avatar ${localProfile.avatarShape}`}
                         />
                         <h2>{localProfile.displayName}</h2>
-                        <p>{localProfile.bio}</p>
+                        <p style={{color: localCustomization.textColor}}>{localProfile.bio}</p>
 
                         {/* Social Links Icons - DODAJ OVO */}
                         {Object.entries(localProfile.socialLinks || {}).some(([_, url]) => url) && (
@@ -1605,7 +1609,7 @@ function Appearance() {
 
                     {/* Footer */}
                     <div className="preview-footer">
-                        <p>Powered by <strong>Lynqio</strong></p>
+                        <p style={{color: localCustomization.textColor}}>Powered by <strong>Lynqio</strong></p>
                     </div>
                     </div>
                 </div>
