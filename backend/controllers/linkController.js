@@ -39,14 +39,32 @@ const getMyLinks = async (req, res) => {
 // @access  Private
 const createLink = async (req, res) => {
   try {
-    const { title, url, description, icon } = req.body;
+    const { title, url, description, icon, type, menu_items } = req.body;
 
-    // Validation
-    if (!title || !url) {
+    // Validation based on type
+    if (!title) {
       return res.status(400).json({ 
         success: false,
-        message: 'Title and URL are required.' 
+        message: 'Title is required.' 
       });
+    }
+
+    if (type === 'menu') {
+      // Validate menu items
+      if (!menu_items || !Array.isArray(menu_items) || menu_items.length === 0) {
+        return res.status(400).json({ 
+          success: false,
+          message: 'At least one menu item is required for menu type.' 
+        });
+      }
+    } else {
+      // Validate URL for link type
+      if (!url) {
+        return res.status(400).json({ 
+          success: false,
+          message: 'URL is required for link type.' 
+        });
+      }
     }
 
     const profile = await Profile.findByUserId(req.user.id);
@@ -62,7 +80,9 @@ const createLink = async (req, res) => {
       title,
       url,
       description,
-      icon
+      icon,
+      type: type || 'link',
+      menu_items: menu_items || null
     });
 
     res.status(201).json({

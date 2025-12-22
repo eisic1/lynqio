@@ -10,6 +10,7 @@ function PublicProfile() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [profileData, setProfileData] = useState(null);
+  const [expandedMenus, setExpandedMenus] = useState({});
   const [customization, setCustomization] = useState({
     profile: {
       displayName: '',
@@ -139,6 +140,14 @@ function PublicProfile() {
     } else {
       alert(`Share this link: ${profileUrl}`);
     }
+  };
+
+  // Toggle menu dropdown
+  const handleToggleMenu = (linkId) => {
+    setExpandedMenus(prev => ({
+      ...prev,
+      [linkId]: !prev[linkId]
+    }));
   };
 
   // Loading state
@@ -329,25 +338,78 @@ function PublicProfile() {
         {/* Links */}
         <div className="public-links-container">
           {activeLinks.length > 0 ? (
-            activeLinks.map((link) => (
-              <a
-                key={link.id}
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`public-link-btn btn-shape-${customization.buttons.style} hover-${customization.buttons.hoverEffect} ${customization.buttons.shadow ? 'with-shadow' : ''}`}
-                onClick={() => handleLinkClick(link.id)}
-                style={{
-                  backgroundColor: customization.buttons.color,
-                  border: customization.buttons.border > 0 
-                    ? `${customization.buttons.border}px solid rgba(0, 0, 0, 0.2)` 
-                    : 'none'
-                }}
-              >
-                <i className={`bi ${link.icon}`}></i>
-                <span>{link.title}</span>
-              </a>
-            ))
+            activeLinks.map((link) => {
+              // Check if it's a menu type
+              const isMenu = link.type === 'menu';
+              const isExpanded = expandedMenus[link.id];
+
+              return (
+                <div key={link.id} className="public-link-wrapper">
+                  {/* Link/Menu Button */}
+                  {isMenu ? (
+                    // MENU BUTTON
+                    <button
+                      className={`public-link-btn btn-shape-${customization.buttons.style} hover-${customization.buttons.hoverEffect} ${customization.buttons.shadow ? 'with-shadow' : ''} ${isExpanded ? 'expanded' : ''}`}
+                      onClick={() => handleToggleMenu(link.id)}
+                      style={{
+                        backgroundColor: customization.buttons.color,
+                        border: customization.buttons.border > 0 
+                          ? `${customization.buttons.border}px solid rgba(0, 0, 0, 0.2)` 
+                          : 'none'
+                      }}
+                    >
+                      <i className={`bi ${link.icon}`}></i>
+                      <span>{link.title}</span>
+                      <i className={`bi bi-chevron-${isExpanded ? 'up' : 'down'} menu-chevron`}></i>
+                    </button>
+                  ) : (
+                    // LINK BUTTON
+                    <a
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`public-link-btn btn-shape-${customization.buttons.style} hover-${customization.buttons.hoverEffect} ${customization.buttons.shadow ? 'with-shadow' : ''}`}
+                      onClick={() => handleLinkClick(link.id)}
+                      style={{
+                        backgroundColor: customization.buttons.color,
+                        border: customization.buttons.border > 0 
+                          ? `${customization.buttons.border}px solid rgba(0, 0, 0, 0.2)` 
+                          : 'none'
+                      }}
+                    >
+                      <i className={`bi ${link.icon}`}></i>
+                      <span>{link.title}</span>
+                    </a>
+                  )}
+
+                  {/* Menu Items Dropdown */}
+                  {isMenu && isExpanded && link.menu_items && (
+                    <div className="menu-dropdown">
+                      <div className="menu-items-grid">
+                        {link.menu_items.map((item, index) => (
+                          <div key={index} className="menu-item-card">
+                            {item.image && (
+                              <div className="menu-item-image">
+                                <img src={item.image} alt={item.name} />
+                              </div>
+                            )}
+                            <div className="menu-item-content">
+                              <h4 className="menu-item-name">{item.name}</h4>
+                              {item.description && (
+                                <p className="menu-item-description">{item.description}</p>
+                              )}
+                              <div className="menu-item-price">
+                                {item.price} {item.currency}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })
           ) : (
             <div className="no-links-message">
               <i className="bi bi-link-45deg"></i>

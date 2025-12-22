@@ -5,7 +5,7 @@ class Link {
   // Kreiranje novog linka
   static async create(profileId, data) {
     try {
-      const { title, url, description, icon } = data;
+      const { title, url, description, icon, type, menu_items } = data;
       
       // Get next position
       const positionQuery = `
@@ -17,12 +17,22 @@ class Link {
       const position = positionResult.rows[0].next_position;
       
       const query = `
-        INSERT INTO links (profile_id, title, url, description, icon, position)
-        VALUES ($1, $2, $3, $4, $5, $6)
+        INSERT INTO links (profile_id, title, url, description, icon, type, menu_items, position)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         RETURNING *
       `;
       
-      const values = [profileId, title, url, description, icon, position];
+      const values = [
+        profileId, 
+        title, 
+        url || null, 
+        description, 
+        icon, 
+        type || 'link',
+        menu_items ? JSON.stringify(menu_items) : null,
+        position
+      ];
+      
       const result = await pool.query(query, values);
       
       return result.rows[0];
@@ -41,7 +51,13 @@ class Link {
       `;
       
       const result = await pool.query(query, [profileId]);
-      return result.rows;
+      // Parse menu_items JSON if exists
+      const links = result.rows.map(link => ({
+        ...link,
+        menu_items: link.menu_items ? (typeof link.menu_items === 'string' ? JSON.parse(link.menu_items) : link.menu_items) : null
+      }));
+      
+      return links;
     } catch (error) {
       throw error;
     }
@@ -52,7 +68,21 @@ class Link {
     try {
       const query = `SELECT * FROM links WHERE id = $1`;
       const result = await pool.query(query, [linkId]);
-      return result.rows[0];
+      
+      if (result.rows.length === 0) {
+        return null;
+      }
+      
+      const link = result.rows[0];
+      
+      // Parse menu_items JSON if exists
+      if (link.menu_items) {
+        link.menu_items = typeof link.menu_items === 'string' 
+          ? JSON.parse(link.menu_items) 
+          : link.menu_items;
+      }
+      
+      return link;
     } catch (error) {
       throw error;
     }
@@ -61,7 +91,7 @@ class Link {
   // Update link
   static async update(linkId, data) {
     try {
-      const { title, url, description, icon, is_active } = data;
+      const { title, url, description, icon, is_active, type, menu_items } = data;
       
       const query = `
         UPDATE links 
@@ -70,12 +100,24 @@ class Link {
             description = COALESCE($3, description),
             icon = COALESCE($4, icon),
             is_active = COALESCE($5, is_active),
+            type = COALESCE($6, type),
+            menu_items = COALESCE($7, menu_items),
             updated_at = CURRENT_TIMESTAMP
-        WHERE id = $6
+        WHERE id = $8
         RETURNING *
       `;
       
-      const values = [title, url, description, icon, is_active, linkId];
+      const values = [
+        title, 
+        url, 
+        description, 
+        icon, 
+        is_active, 
+        type,
+        menu_items ? JSON.stringify(menu_items) : null,
+        linkId
+      ];
+      
       const result = await pool.query(query, values);
       
       return result.rows[0];

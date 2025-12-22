@@ -199,17 +199,22 @@ class Profile {
       
       // Get links
       const linksQuery = `
-        SELECT id, title, url, description, icon, position, click_count
+        SELECT id, title, url, description, icon, position, click_count, type, menu_items
         FROM links
         WHERE profile_id = $1 AND is_active = true
         ORDER BY position ASC
       `;
       
       const linksResult = await pool.query(linksQuery, [profile.id]);
+
+      const links = linksResult.rows.map(link => ({
+        ...link,
+        menu_items: link.menu_items ? (typeof link.menu_items === 'string' ? JSON.parse(link.menu_items) : link.menu_items) : null
+      }));
       
       return {
         ...profile,
-        links: linksResult.rows
+        links: links
       };
     } catch (error) {
       throw error;

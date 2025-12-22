@@ -995,4 +995,418 @@ input:checked + .slider-small:before {
 }
 
 
+/* ==================== TYPE SELECTOR ==================== */
 
+.type-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.type-option {
+  padding: 1rem;
+  background: #f7fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.type-option:hover {
+  border-color: #667eea;
+  background: rgba(102, 126, 234, 0.05);
+}
+
+.type-option.active {
+  border-color: #667eea;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+  color: #667eea;
+}
+
+.type-option i {
+  font-size: 1.5rem;
+}
+
+/* ==================== MENU ITEMS SECTION ==================== */
+
+.menu-items-section {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #e2e8f0;
+}
+
+.menu-items-section > label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 1rem;
+}
+
+.menu-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding-right: 0.5rem;
+}
+
+/* Custom scrollbar */
+.menu-items-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.menu-items-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.menu-items-list::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 10px;
+}
+
+.menu-items-list::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
+
+/* ==================== MENU ITEM CARD ==================== */
+
+.menu-item-card {
+  background: #f7fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem;
+  transition: all 0.3s ease;
+}
+
+.menu-item-card:hover {
+  border-color: #cbd5e0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.menu-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.menu-item-number {
+  font-weight: 700;
+  color: #667eea;
+  font-size: 0.9rem;
+}
+
+.btn-remove-item {
+  background: #fee;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  color: #e53e3e;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-remove-item:hover {
+  background: #e53e3e;
+  color: white;
+  transform: scale(1.05);
+}
+
+/* ==================== MENU ITEM FIELDS ==================== */
+
+.menu-item-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.form-group-inline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group-inline label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.form-input-sm {
+  padding: 0.65rem 0.85rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.form-input-sm:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* ==================== PRICE INPUT GROUP ==================== */
+
+.price-group {
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+}
+
+.price-group label {
+  min-width: 60px;
+}
+
+.price-input-group {
+  display: flex;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.price-input {
+  flex: 1;
+}
+
+.currency-select {
+  padding: 0.65rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #4a5568;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 70px;
+}
+
+.currency-select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* ==================== IMAGE UPLOAD ==================== */
+
+.image-upload-container {
+  display: flex;
+  align-items: center;
+}
+
+.btn-upload-image {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1rem;
+  background: #f7fafc;
+  border: 2px dashed #cbd5e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.btn-upload-image:hover {
+  border-color: #667eea;
+  background: rgba(102, 126, 234, 0.05);
+  color: #667eea;
+}
+
+.btn-upload-image i {
+  font-size: 1rem;
+}
+
+.uploaded-image-preview {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid #e2e8f0;
+}
+
+.uploaded-image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.btn-remove-image {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 24px;
+  height: 24px;
+  background: rgba(0, 0, 0, 0.7);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.btn-remove-image:hover {
+  background: #e53e3e;
+  transform: scale(1.1);
+}
+
+/* ==================== EMPTY STATE ==================== */
+
+.empty-menu-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: #f7fafc;
+  border: 2px dashed #cbd5e0;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+}
+
+.empty-menu-state i {
+  font-size: 3rem;
+  color: #cbd5e0;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.empty-menu-state p {
+  color: #718096;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* ==================== ADD MENU ITEM BUTTON ==================== */
+
+.btn-add-menu-item {
+  width: 100%;
+  padding: 0.85rem 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-add-menu-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.btn-add-menu-item i {
+  font-size: 1.1rem;
+}
+
+/* ==================== RESPONSIVE ==================== */
+
+@media (max-width: 576px) {
+  .type-selector {
+    grid-template-columns: 1fr;
+  }
+  
+  .price-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .price-group label {
+    min-width: auto;
+  }
+  
+  .menu-items-list {
+    max-height: 300px;
+  }
+}
+
+/* ==================== LINK TITLE ROW ==================== */
+
+.link-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.link-details h4 {
+  margin: 0;
+  flex: 1;
+}
+
+/* ==================== LINK TYPE BADGE ==================== */
+
+.link-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.link-type-badge.link {
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+}
+
+.link-type-badge.menu {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+}
+
+.link-type-badge i {
+  font-size: 0.85rem;
+}
+
+/* ==================== LINK MENU COUNT ==================== */
+
+.link-menu-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #718096;
+  font-size: 0.85rem;
+}
+
+.link-menu-count i {
+  font-size: 0.9rem;
+}
+
+/* ==================== RESPONSIVE ==================== */
+
+@media (max-width: 576px) {
+  .link-title-row {
+    flex-wrap: wrap;
+  }
+  
+  .link-type-badge {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+  }
+}

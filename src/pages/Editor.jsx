@@ -82,13 +82,42 @@ function Editor() {
   const [newLink, setNewLink] = useState({
     title: '',
     url: '',
-    icon: 'bi-link-45deg'
+    icon: 'bi-ban',
+    type: 'link', 
+    menu_items: []
   });
 
   const handleAddLink = async () => {
-    if (!newLink.title || !newLink.url) {
-      toast.showError('Please fill in all fields');
+    // Validation
+    if (!newLink.title.trim()) {
+      toast.showError('Please enter a title');
       return;
+    }
+
+    // Validate based on type
+    if (newLink.type === 'link') {
+      if (!newLink.url.trim()) {
+        toast.showError('Please enter a URL');
+        return;
+      }
+    } else if (newLink.type === 'menu') {
+      if (newLink.menu_items.length === 0) {
+        toast.showError('Please add at least one menu item');
+        return;
+      }
+      
+      // Validate each menu item
+      for (let i = 0; i < newLink.menu_items.length; i++) {
+        const item = newLink.menu_items[i];
+        if (!item.name.trim()) {
+          toast.showError(`Menu item #${i + 1}: Name is required`);
+          return;
+        }
+        if (!item.price || parseFloat(item.price) <= 0) {
+          toast.showError(`Menu item #${i + 1}: Valid price is required`);
+          return;
+        }
+      }
     }
 
     try {
@@ -97,7 +126,9 @@ function Editor() {
         const response = await linksAPI.updateLink(newLink.id, {
           title: newLink.title,
           url: newLink.url,
-          icon: newLink.icon
+          icon: newLink.icon,
+          type: newLink.type,
+          menu_items: newLink.menu_items
         });
 
         if (response.success) {
@@ -113,7 +144,9 @@ function Editor() {
         const response = await linksAPI.createLink({
           title: newLink.title,
           url: newLink.url,
-          icon: newLink.icon
+          icon: newLink.icon,
+          type: newLink.type,
+          menu_items: newLink.menu_items
         });
 
         if (response.success) {
@@ -125,7 +158,7 @@ function Editor() {
       }
 
       // Reset form i zatvori modal
-      setNewLink({ title: '', url: '', icon: 'bi-link-45deg' });
+      setNewLink({ title: '', url: '', icon: 'bi-ban', type: 'link', menu_items: [] });
       setShowAddModal(false);
 
     } catch (error) {
@@ -135,9 +168,14 @@ function Editor() {
     }
   };
 
+  const onAddNewLink = () => {
+    setShowAddModal(true);
+    setNewLink({ title: '', url: '', icon: 'bi-ban', type: 'link', menu_items: [] });
+  };
+
   const handleEditingLink = (link) => {
     setShowAddModal(true);
-    setNewLink({ id: link.id, title: link.title, url: link.url, icon: link.icon, active: link.active });
+    setNewLink({ id: link.id, title: link.title, url: link.url, icon: link.icon, active: link.active, type: link.type, menu_items: link.menu_items || [] });
   };
 
   // Remove linka
@@ -246,6 +284,43 @@ function Editor() {
     }
   };
 
+  // Handle menu item image upload
+  const handleMenuItemImageUpload = async (e, itemIndex) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.showError('Please upload an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.showError('Image size must be less than 5MB');
+      return;
+    }
+
+    try {
+      // Convert to base64 (ista metoda kao avatar/header)
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result;
+        const updatedItems = [...newLink.menu_items];
+        updatedItems[itemIndex].image = base64String;
+        setNewLink({ ...newLink, menu_items: updatedItems });
+        toast.showSuccess('Image uploaded successfully!');
+      };
+      reader.onerror = () => {
+        toast.showError('Failed to upload image');
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.showError('Failed to upload image');
+    }
+  };
+
   const fetchProfileSettings = async () => {
     try {
       const response = await profileAPI.getMyProfile();
@@ -310,7 +385,7 @@ function Editor() {
                     {/* Add Link Button */}
                     <button 
                     className="btn-add-link"
-                    onClick={() => setShowAddModal(true)}
+                    onClick={onAddNewLink}
                     >
                     <i className="bi bi-plus-lg"></i>
                     Add New Link
@@ -336,8 +411,32 @@ function Editor() {
                         </div>
                         
                         <div className="link-details">
-                            <h4>{link.title}</h4>
-                            <span>{link.url}</span>
+                            <div className="link-title-row">
+                              <h4>{link.title}</h4>
+                              {/* Type Badge - DODAJ OVO */}
+                              <span className={`link-type-badge ${link.type || 'link'}`}>
+                                {link.type === 'menu' ? (
+                                  <>
+                                    <i className="bi bi-list-ul"></i>
+                                    Menu
+                                  </>
+                                ) : (
+                                  <>
+                                    <i className="bi bi-link-45deg"></i>
+                                    Link
+                                  </>
+                                )}
+                              </span>
+                            </div>
+                            {/* Show URL for links, item count for menus */}
+                            {link.type === 'menu' ? (
+                              <span className="link-menu-count">
+                                <i className="bi bi-card-list"></i>
+                                {link.menu_items?.length || 0} items
+                              </span>
+                            ) : (
+                              <span>{link.url}</span>
+                            )}
                         </div>
 
                         <div className="link-item-actions">
@@ -613,6 +712,36 @@ function Editor() {
             </div>
 
             <div className="modal-body">
+              {/* Type Selector - DODAJ OVO */}
+              <div className="form-group">
+                <label>Content Type</label>
+                <div className="type-selector">
+                  <button
+                    type="button"
+                    className={`type-option ${newLink.type === 'link' ? 'active' : ''}`}
+                    onClick={() => setNewLink({
+                      ...newLink,
+                      type: 'link',
+                      menu_items: []
+                    })}
+                  >
+                    <i className="bi bi-link-45deg"></i>
+                    <span>Link</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`type-option ${newLink.type === 'menu' ? 'active' : ''}`}
+                    onClick={() => setNewLink({
+                      ...newLink,
+                      type: 'menu',
+                      url: ''
+                    })}
+                  >
+                    <i className="bi bi-list-ul"></i>
+                    <span>Menu</span>
+                  </button>
+                </div>
+              </div>
               <div className="form-group">
                 <label>Link Title</label>
                 <input 
@@ -623,25 +752,32 @@ function Editor() {
                 />
               </div>
 
-              <div className="form-group">
-                <label>URL</label>
-                <input 
-                  type="url"
-                  placeholder="https://example.com"
-                  value={newLink.url}
-                  onChange={(e) => setNewLink({...newLink, url: e.target.value})}
-                />
-              </div>
+              {/* URL - SAMO ZA LINK TYPE */}
+              {newLink.type === 'link' && (
+                <div className="form-group">
+                  <label>URL</label>
+                  <input
+                    type="url"
+                    className="form-input"
+                    placeholder="https://example.com"
+                    value={newLink.url}
+                    onChange={(e) => setNewLink({ ...newLink, url: e.target.value })}
+                  />
+                </div>
+              )}
 
               <div className="form-group">
                 <label>Icon (Bootstrap Icon class)</label>
                 <div className="icon-selector">
-                  {['bi-link-45deg', 'bi-telephone', 'bi-envelope', 'bi-instagram', 'bi-youtube', 'bi-twitter', 
-                    'bi-facebook', 'bi-linkedin', 'bi-github', 'bi-globe'].map(icon => (
+                  {['bi-ban','bi-link-45deg', 'bi-telephone', 'bi-envelope', 'bi-instagram', 'bi-youtube', 'bi-twitter', 
+                    'bi-facebook', 'bi-linkedin', 'bi-github', 'bi-globe', 'bi-geo-alt'].map(icon => (
                     <button
                       key={icon}
                       className={`icon-option ${newLink.icon === icon ? 'selected' : ''}`}
-                      onClick={() => setNewLink({...newLink, icon})}
+                      onClick={() => {
+                        if (icon === 'bi-ban') setNewLink({...newLink, icon: ''}); 
+                        else setNewLink({...newLink, icon})
+                      }}
                     >
                       <i className={`bi ${icon}`}></i>
                     </button>
@@ -649,6 +785,170 @@ function Editor() {
                 </div>
               </div>
             </div>
+
+            {/* Menu Items Section - SAMO ZA MENU TYPE */}
+            {newLink.type === 'menu' && (
+              <div className="form-group menu-items-section">
+                <label>
+                  <i className="bi bi-card-list"></i>
+                  Menu Items
+                </label>
+                
+                {/* Menu Items List */}
+                {newLink.menu_items.length > 0 ? (
+                  <div className="menu-items-list">
+                    {newLink.menu_items.map((item, index) => (
+                      <div key={index} className="menu-item-card">
+                        <div className="menu-item-header">
+                          <span className="menu-item-number">#{index + 1}</span>
+                          <button
+                            type="button"
+                            className="btn-remove-item"
+                            onClick={() => {
+                              const updatedItems = newLink.menu_items.filter((_, i) => i !== index);
+                              setNewLink({ ...newLink, menu_items: updatedItems });
+                            }}
+                          >
+                            <i className="bi bi-trash"></i>
+                          </button>
+                        </div>
+                        
+                        <div className="menu-item-fields">
+                          {/* Item Name */}
+                          <div className="form-group-inline">
+                            <label>Item Name</label>
+                            <input
+                              type="text"
+                              className="form-input-sm"
+                              placeholder="e.g., Espresso"
+                              value={item.name}
+                              onChange={(e) => {
+                                const updatedItems = [...newLink.menu_items];
+                                updatedItems[index].name = e.target.value;
+                                setNewLink({ ...newLink, menu_items: updatedItems });
+                              }}
+                            />
+                          </div>
+                          
+                          {/* Price & Currency */}
+                          <div className="form-group-inline price-group">
+                            <label>Price</label>
+                            <div className="price-input-group">
+                              <input
+                                type="number"
+                                step="0.01"
+                                className="form-input-sm price-input"
+                                placeholder="2.00"
+                                value={item.price}
+                                onChange={(e) => {
+                                  const updatedItems = [...newLink.menu_items];
+                                  updatedItems[index].price = e.target.value;
+                                  setNewLink({ ...newLink, menu_items: updatedItems });
+                                }}
+                              />
+                              <select
+                                className="currency-select"
+                                value={item.currency}
+                                onChange={(e) => {
+                                  const updatedItems = [...newLink.menu_items];
+                                  updatedItems[index].currency = e.target.value;
+                                  setNewLink({ ...newLink, menu_items: updatedItems });
+                                }}
+                              >
+                                <option value="€">€</option>
+                                <option value="$">$</option>
+                                <option value="£">£</option>
+                                <option value="KM">KM</option>
+                              </select>
+                            </div>
+                          </div>
+                          
+                          {/* Description (optional) */}
+                          <div className="form-group-inline">
+                            <label>Description (optional)</label>
+                            <input
+                              type="text"
+                              className="form-input-sm"
+                              placeholder="e.g., Strong Italian coffee"
+                              value={item.description || ''}
+                              onChange={(e) => {
+                                const updatedItems = [...newLink.menu_items];
+                                updatedItems[index].description = e.target.value;
+                                setNewLink({ ...newLink, menu_items: updatedItems });
+                              }}
+                            />
+                          </div>
+                          
+                          {/* Image Upload */}
+                          <div className="form-group-inline">
+                            <label>Image (optional)</label>
+                            <div className="image-upload-container">
+                              {item.image ? (
+                                <div className="uploaded-image-preview">
+                                  <img src={item.image} alt={item.name} />
+                                  <button
+                                    type="button"
+                                    className="btn-remove-image"
+                                    onClick={() => {
+                                      const updatedItems = [...newLink.menu_items];
+                                      updatedItems[index].image = '';
+                                      setNewLink({ ...newLink, menu_items: updatedItems });
+                                    }}
+                                  >
+                                    <i className="bi bi-x"></i>
+                                  </button>
+                                </div>
+                              ) : (
+                                <label className="btn-upload-image">
+                                  <i className="bi bi-image"></i>
+                                  <span>Upload Image</span>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    hidden
+                                    onChange={(e) => handleMenuItemImageUpload(e, index)}
+                                  />
+                                </label>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="empty-menu-state">
+                    <i className="bi bi-card-list"></i>
+                    <p>No menu items yet. Add your first item!</p>
+                  </div>
+                )}
+                
+                {/* Add Menu Item Button */}
+                <button
+                  type="button"
+                  className="btn-add-menu-item"
+                  onClick={() => {
+                    setNewLink({
+                      ...newLink,
+                      menu_items: [
+                        ...newLink.menu_items,
+                        {
+                          id: Date.now().toString(),
+                          name: '',
+                          price: '',
+                          currency: '€',
+                          description: '',
+                          image: ''
+                        }
+                      ]
+                    });
+                  }}
+                >
+                  <i className="bi bi-plus-circle"></i>
+                  Add Menu Item
+                </button>
+              </div>
+            )}
 
             <div className="modal-footer">
               <button 
