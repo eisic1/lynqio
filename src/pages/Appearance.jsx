@@ -51,6 +51,10 @@ function Appearance() {
     buttonShadow: true, 
     buttonBorder: 0, 
     buttonHoverEffect: 'lift',
+    linkDisplayType: 'button',
+    cardShadow: true,
+    cardHoverEffect: 'lift',
+    cardBorderRadius: 12,
     font: 'inter',
     textColor: '#2d3748'
   });
@@ -200,7 +204,11 @@ function Appearance() {
             buttonStyle: customization.buttons.style || 'rounded',
             buttonShadow: customization.buttons.shadow !== undefined ? customization.buttons.shadow : true, 
             buttonBorder: customization.buttons.border || 0, 
-            buttonHoverEffect: customization.buttons.hoverEffect || 'lift'
+            buttonHoverEffect: customization.buttons.hoverEffect || 'lift',
+            linkDisplayType: customization.buttons.linkDisplayType || 'button',
+            cardShadow: customization.buttons.cardShadow !== undefined ? customization.buttons.cardShadow : true,
+            cardHoverEffect: customization.buttons.cardHoverEffect || 'lift',
+            cardBorderRadius: customization.buttons.cardBorderRadius || 12
           }));
         }
         
@@ -398,7 +406,11 @@ function Appearance() {
           style: localCustomization.buttonStyle,
           shadow: localCustomization.buttonShadow,
           border: localCustomization.buttonBorder,
-          hoverEffect: localCustomization.buttonHoverEffect
+          hoverEffect: localCustomization.buttonHoverEffect,
+          linkDisplayType: localCustomization.linkDisplayType,
+          cardShadow: localCustomization.cardShadow,
+          cardHoverEffect: localCustomization.cardHoverEffect,
+          cardBorderRadius: localCustomization.cardBorderRadius
         },
         typography: {
           fontFamily: localCustomization.font,
@@ -1053,6 +1065,37 @@ function Appearance() {
                 </h3>
 
                   <div className={`section-content ${activeSection === 'buttons' ? 'active' : ''}`}>
+                  
+                  {/* Link Display Type */}
+                  <div className="setting-group">
+                    <label>Display As</label>
+                    <div className="toggle-buttons">
+                      <button
+                        className={`toggle-btn ${localCustomization.linkDisplayType === 'button' ? 'active' : ''}`}
+                        onClick={() => setLocalCustomization({
+                          ...localCustomization,
+                          linkDisplayType: 'button'
+                        })}
+                      >
+                        <i className="bi bi-square"></i>
+                        Button
+                      </button>
+                      <button
+                        className={`toggle-btn ${localCustomization.linkDisplayType === 'card' ? 'active' : ''}`}
+                        onClick={() => setLocalCustomization({
+                          ...localCustomization,
+                          linkDisplayType: 'card'
+                        })}
+                      >
+                        <i className="bi bi-credit-card"></i>
+                        Card
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Button-specific options */}
+                  {localCustomization.linkDisplayType === 'button' && (
+                    <>
                   {/* Button Color */}
                   <div className="setting-group">
                     <label>Button Color</label>
@@ -1367,6 +1410,123 @@ function Appearance() {
                       </button>
                     </div>
                   </div>
+                    </>
+                  )}
+
+                  {/* Card-specific options */}
+                  {localCustomization.linkDisplayType === 'card' && (
+                    <>
+                      {/* Card Shadow */}
+                      <div className="setting-group">
+                        <label>Card Shadow</label>
+                        <div className="toggle-switch-container">
+                          <button
+                            className={`toggle-switch ${localCustomization.cardShadow ? 'active' : ''}`}
+                            onClick={() => setLocalCustomization({
+                              ...localCustomization,
+                              cardShadow: !localCustomization.cardShadow
+                            })}
+                          >
+                            <div className="toggle-switch-slider"></div>
+                          </button>
+                          <span className="toggle-switch-label">
+                            {localCustomization.cardShadow ? 'Enabled' : 'Disabled'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Card Border Radius */}
+                      <div className="setting-group">
+                        <label>Card Border Radius</label>
+                        <div className="slider-container">
+                          <input
+                            type="range"
+                            min="0"
+                            max="30"
+                            value={localCustomization.cardBorderRadius}
+                            onChange={(e) => setLocalCustomization({
+                              ...localCustomization,
+                              cardBorderRadius: parseInt(e.target.value)
+                            })}
+                            className="range-slider"
+                          />
+                          <span className="slider-value">{localCustomization.cardBorderRadius}px</span>
+                        </div>
+                      </div>
+
+                      {/* Card Hover Effect */}
+                      <div className="setting-group">
+                        <label>Card Hover Effect</label>
+                        <div className="hover-effect-grid">
+                          <button
+                            className={`hover-option ${localCustomization.cardHoverEffect === 'lift' ? 'active' : ''}`}
+                            onClick={() => setLocalCustomization({
+                              ...localCustomization,
+                              cardHoverEffect: 'lift'
+                            })}
+                          >
+                            <i className="bi bi-arrow-up"></i>
+                            <span>Lift</span>
+                          </button>
+                          
+                          <button
+                            className={`hover-option ${localCustomization.cardHoverEffect === 'scale' ? 'active' : ''}`}
+                            onClick={() => setLocalCustomization({
+                              ...localCustomization,
+                              cardHoverEffect: 'scale'
+                            })}
+                          >
+                            <i className="bi bi-arrows-angle-expand"></i>
+                            <span>Scale</span>
+                          </button>
+                          
+                          <button
+                            className={`hover-option ${localCustomization.cardHoverEffect === 'glow' ? 'active' : ''}`}
+                            onClick={() => setLocalCustomization({
+                              ...localCustomization,
+                              cardHoverEffect: 'glow'
+                            })}
+                          >
+                            <i className="bi bi-brightness-high"></i>
+                            <span>Glow</span>
+                          </button>
+                          
+                          <button
+                            className={`hover-option ${localCustomization.cardHoverEffect === 'tilt' ? 'active' : ''}`}
+                            onClick={() => setLocalCustomization({
+                              ...localCustomization,
+                              cardHoverEffect: 'tilt'
+                            })}
+                          >
+                            <i className="bi bi-box"></i>
+                            <span>Tilt 3D</span>
+                          </button>
+
+                          <button
+                            className={`hover-option ${localCustomization.cardHoverEffect === 'shine' ? 'active' : ''}`}
+                            onClick={() => setLocalCustomization({
+                              ...localCustomization,
+                              cardHoverEffect: 'shine'
+                            })}
+                          >
+                            <i className="bi bi-stars"></i>
+                            <span>Shine</span>
+                          </button>
+                          
+                          <button
+                            className={`hover-option ${localCustomization.cardHoverEffect === 'none' ? 'active' : ''}`}
+                            onClick={() => setLocalCustomization({
+                              ...localCustomization,
+                              cardHoverEffect: 'none'
+                            })}
+                          >
+                            <i className="bi bi-dash-circle"></i>
+                            <span>None</span>
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -1587,24 +1747,56 @@ function Appearance() {
 
                     {/* Links Preview */}
                     <div className="preview-links">
-                      {links.filter(link => link.is_active).map((link) => (
-                        <a
-                          key={link.id}
-                          href={link.url}
-                          className={`preview-link-btn btn-shape-${localCustomization.buttonStyle} hover-${localCustomization.buttonHoverEffect} ${localCustomization.buttonShadow ? 'with-shadow' : ''}`}
-                          style={{ 
-                            backgroundColor: localCustomization.buttonColor,
-                            border: localCustomization.buttonBorder > 0 
-                              ? `${localCustomization.buttonBorder}px solid rgba(0, 0, 0, 0.2)` 
-                              : 'none'
-                          }}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <i className={`bi ${link.icon}`}></i>
-                          <span>{link.title}</span>
-                        </a>
-                      ))}
+                      {links.filter(link => link.is_active).map((link) => {
+                        // Determine display type: use link-specific if set, otherwise use global
+                        const displayType = link.display_type && link.display_type !== 'default' 
+                          ? link.display_type 
+                          : localCustomization.linkDisplayType;
+                        
+                        return displayType === 'button' ? (
+                        // Button View
+                          <a
+                            key={link.id}
+                            href={link.url}
+                            className={`preview-link-btn btn-shape-${localCustomization.buttonStyle} hover-${localCustomization.buttonHoverEffect} ${localCustomization.buttonShadow ? 'with-shadow' : ''}`}
+                            style={{ 
+                              backgroundColor: localCustomization.buttonColor,
+                              border: localCustomization.buttonBorder > 0 
+                                ? `${localCustomization.buttonBorder}px solid rgba(0, 0, 0, 0.2)` 
+                                : 'none'
+                            }}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <i className={`bi ${link.icon}`}></i>
+                            <span>{link.title}</span>
+                          </a>
+                        ) : (
+                        // Card View
+                          <a
+                            key={link.id}
+                            href={link.url}
+                            className={`preview-link-card card-hover-${localCustomization.cardHoverEffect} ${localCustomization.cardShadow ? 'with-shadow' : ''}`}
+                            style={{ 
+                              backgroundImage: link.card_background ? `url(${link.card_background})` : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                              backgroundSize: 'cover',
+                              backgroundPosition: 'center',
+                              borderRadius: `${localCustomization.cardBorderRadius}px`
+                            }}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <div className="card-overlay"></div>
+                            <div className="card-content">
+                              <i className={`bi ${link.icon} card-icon`}></i>
+                              <h3 className="card-title">{link.title}</h3>
+                              {link.description && (
+                                <p className="card-description">{link.description}</p>
+                              )}
+                            </div>
+                          </a>
+                        );
+                      })}
                     </div>
 
                     {/* Footer */}

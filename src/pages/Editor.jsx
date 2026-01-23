@@ -31,6 +31,7 @@ function Editor() {
     backgroundType: 'color',
     buttonColor: '#667eea',
     buttonStyle: 'rounded',
+    linkDisplayType: 'button',
     font: 'inter',
     textColor: '#2d3748',
   });
@@ -75,6 +76,27 @@ function Editor() {
     });
   };
 
+  // Handle card background upload
+  const handleCardBackgroundUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Check file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.showError('Image size should be less than 5MB');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setNewLink({
+          ...newLink,
+          card_background: reader.result
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const [activeTab, setActiveTab] = useState('links');
   const [previewDevice, setPreviewDevice] = useState('mobile');
   const [showAddModal, setShowAddModal] = useState(false);
@@ -84,7 +106,9 @@ function Editor() {
     url: '',
     icon: 'bi-ban',
     type: 'link', 
-    menu_items: []
+    menu_items: [],
+    card_background: '',
+    display_type: 'default'
   });
 
   const handleAddLink = async () => {
@@ -128,7 +152,9 @@ function Editor() {
           url: newLink.url,
           icon: newLink.icon,
           type: newLink.type,
-          menu_items: newLink.menu_items
+          menu_items: newLink.menu_items,
+          card_background: newLink.card_background,
+          display_type: newLink.display_type
         });
 
         if (response.success) {
@@ -146,7 +172,9 @@ function Editor() {
           url: newLink.url,
           icon: newLink.icon,
           type: newLink.type,
-          menu_items: newLink.menu_items
+          menu_items: newLink.menu_items,
+          card_background: newLink.card_background,
+          display_type: newLink.display_type
         });
 
         if (response.success) {
@@ -158,7 +186,7 @@ function Editor() {
       }
 
       // Reset form i zatvori modal
-      setNewLink({ title: '', url: '', icon: 'bi-ban', type: 'link', menu_items: [] });
+      setNewLink({ title: '', url: '', icon: 'bi-ban', type: 'link', menu_items: [], card_background: '', display_type: 'default' });
       setShowAddModal(false);
 
     } catch (error) {
@@ -170,12 +198,22 @@ function Editor() {
 
   const onAddNewLink = () => {
     setShowAddModal(true);
-    setNewLink({ title: '', url: '', icon: 'bi-ban', type: 'link', menu_items: [] });
+    setNewLink({ title: '', url: '', icon: 'bi-ban', type: 'link', menu_items: [], card_background: '', display_type: 'default' });
   };
 
   const handleEditingLink = (link) => {
     setShowAddModal(true);
-    setNewLink({ id: link.id, title: link.title, url: link.url, icon: link.icon, active: link.active, type: link.type, menu_items: link.menu_items || [] });
+    setNewLink({ 
+      id: link.id, 
+      title: link.title, 
+      url: link.url, 
+      icon: link.icon, 
+      active: link.active, 
+      type: link.type, 
+      menu_items: link.menu_items || [], 
+      card_background: link.card_background || '',
+      display_type: link.display_type || 'default'
+    });
   };
 
   // Remove linka
@@ -321,6 +359,31 @@ function Editor() {
     }
   };
 
+  const [profile, setProfile] = useState({
+    displayName: '',
+    bio: '',
+    avatar: 'https://www.svgrepo.com/show/384674/account-avatar-profile-user-11.svg',
+    avatarShape: 'circle',
+    headerImage: '',
+    socialLinks: {}
+  });
+
+  const getSocialUrl = (platform, username) => {
+    if (!username) return '';
+    const cleanUsername = username.trim().replace('@', '');
+    const baseUrls = {
+      instagram: 'https://instagram.com/',
+      twitter: 'https://twitter.com/',
+      tiktok: 'https://tiktok.com/@',
+      youtube: 'https://youtube.com/@',
+      linkedin: 'https://linkedin.com/in/',
+      facebook: 'https://facebook.com/',
+      github: 'https://github.com/',
+      spotify: 'https://open.spotify.com/user/'
+    };
+    return baseUrls[platform] + cleanUsername;
+  };
+
   const fetchProfileSettings = async () => {
     try {
       const response = await profileAPI.getMyProfile();
@@ -328,9 +391,57 @@ function Editor() {
       if (response.success) {
         const profile = response.data.profile;
         
-        // Učitaj customization ako postoji
-        if (profile.theme) {
-          // Ako čuvaš kao JSON string
+        // Load profile data
+        setProfile({
+          displayName: profile.title || '',
+          bio: profile.bio || '',
+          avatar: profile.profile_image_url || 'https://www.svgrepo.com/show/384674/account-avatar-profile-user-11.svg',
+          avatarShape: 'circle',
+          headerImage: '',
+          socialLinks: {}
+        });
+        
+        // Učitaj customization iz nove strukture
+        if (profile.customization) {
+          const custom = profile.customization;
+          
+          // Load profile customization
+          if (custom.profile) {
+            setProfile(prev => ({
+              ...prev,
+              displayName: custom.profile.displayName || profile.title || '',
+              avatar: custom.profile.avatar || profile.profile_image_url || prev.avatar,
+              avatarShape: custom.profile.avatarShape || 'circle',
+              headerImage: custom.profile.headerImage || '',
+              socialLinks: custom.profile.socialLinks || {}
+            }));
+          }
+          
+          setCustomization({
+            backgroundColor: custom.background?.color || '#ffffff',
+            backgroundImage: custom.background?.image || '',
+            backgroundType: custom.background?.type || 'color',
+            backgroundGradient: custom.background?.gradient || {
+              enabled: false,
+              colorStart: '#667eea',
+              colorEnd: '#764ba2',
+              direction: ''
+            },
+            buttonColor: custom.buttons?.color || '#667eea',
+            buttonStyle: custom.buttons?.style || 'rounded',
+            linkDisplayType: custom.buttons?.linkDisplayType || 'button',
+            buttonShadow: custom.buttons?.shadow !== undefined ? custom.buttons.shadow : true,
+            buttonBorder: custom.buttons?.border || 0,
+            buttonHoverEffect: custom.buttons?.hoverEffect || 'lift',
+            cardShadow: custom.buttons?.cardShadow !== undefined ? custom.buttons.cardShadow : true,
+            cardHoverEffect: custom.buttons?.cardHoverEffect || 'lift',
+            cardBorderRadius: custom.buttons?.cardBorderRadius || 12,
+            font: custom.typography?.fontFamily || 'inter',
+            textColor: custom.typography?.textColor || '#2d3748',
+          });
+        }
+        // Fallback na stari theme format
+        else if (profile.theme) {
           try {
             const savedCustomization = JSON.parse(profile.theme);
             setCustomization(savedCustomization);
@@ -642,47 +753,184 @@ function Editor() {
                             : 'transparent',
                         backgroundImage: customization.backgroundType === 'image' && customization.backgroundImage
                             ? `url(${customization.backgroundImage})`
+                            : customization.backgroundType === 'gradient'
+                            ? `linear-gradient(${customization.backgroundGradient.direction}, ${customization.backgroundGradient.colorStart}, ${customization.backgroundGradient.colorEnd})`
                             : 'none',
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
-                        backgroundRepeat: 'no-repeat'
+                        backgroundRepeat: 'no-repeat',
+                        fontFamily: customization.font,
+                        color: customization.textColor
                     }}
                     >
+                    
+                    {/* Header Image */}
+                    {profile.headerImage && (
+                      <div className="preview-header-image">
+                        <img 
+                          src={profile.headerImage} 
+                          alt="Header" 
+                          className="header-img"
+                        />
+                      </div>
+                    )}
+
                     {/* Profile Section */}
                     <div className="preview-profile">
                         <img 
-                        src="https://ui-avatars.com/api/?name=John+Doe&background=667eea&color=fff&size=100" 
-                        alt="Profile"
-                        className="preview-avatar"
+                          src={profile.avatar} 
+                          alt="Profile"
+                          className={`preview-avatar ${profile.avatarShape}`}
                         />
-                        <h2>John Doe</h2>
-                        <p>Content Creator & Designer</p>
+                        <h2 style={{ color: customization.textColor }}>{profile.displayName || 'Your Name'}</h2>
+                        <p style={{ color: customization.textColor }}>{profile.bio || 'Your bio here'}</p>
+
+                        {/* Social Links Icons */}
+                        {Object.entries(profile.socialLinks || {}).some(([_, url]) => url) && (
+                          <div className="preview-social-links">
+                            {profile.socialLinks.instagram && (
+                              <a 
+                                href={getSocialUrl('instagram', profile.socialLinks.instagram)} 
+                                className="preview-social-icon instagram"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <i className="bi bi-instagram"></i>
+                              </a>
+                            )}
+                            {profile.socialLinks.twitter && (
+                              <a 
+                                href={getSocialUrl('twitter', profile.socialLinks.twitter)} 
+                                className="preview-social-icon twitter"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <i className="bi bi-twitter-x"></i>
+                              </a>
+                            )}
+                            {profile.socialLinks.tiktok && (
+                              <a 
+                                href={getSocialUrl('tiktok', profile.socialLinks.tiktok)} 
+                                className="preview-social-icon tiktok"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <i className="bi bi-tiktok"></i>
+                              </a>
+                            )}
+                            {profile.socialLinks.youtube && (
+                              <a 
+                                href={getSocialUrl('youtube', profile.socialLinks.youtube)} 
+                                className="preview-social-icon youtube"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <i className="bi bi-youtube"></i>
+                              </a>
+                            )}
+                            {profile.socialLinks.linkedin && (
+                              <a 
+                                href={getSocialUrl('linkedin', profile.socialLinks.linkedin)} 
+                                className="preview-social-icon linkedin"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <i className="bi bi-linkedin"></i>
+                              </a>
+                            )}
+                            {profile.socialLinks.facebook && (
+                              <a 
+                                href={getSocialUrl('facebook', profile.socialLinks.facebook)} 
+                                className="preview-social-icon facebook"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <i className="bi bi-facebook"></i>
+                              </a>
+                            )}
+                            {profile.socialLinks.github && (
+                              <a 
+                                href={getSocialUrl('github', profile.socialLinks.github)} 
+                                className="preview-social-icon github"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <i className="bi bi-github"></i>
+                              </a>
+                            )}
+                            {profile.socialLinks.spotify && (
+                              <a 
+                                href={getSocialUrl('spotify', profile.socialLinks.spotify)} 
+                                className="preview-social-icon spotify"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <i className="bi bi-spotify"></i>
+                              </a>
+                            )}
+                          </div>
+                        )}
                     </div>
 
                     {/* Links Preview */}
                     <div className="preview-links">
-                        {links.filter(link => link.is_active).map((link) => (
-                        <a
-                            key={link.id}
-                            href={link.url}
-                            className={`preview-link-btn ${customization.buttonStyle}`}
-                            style={{ 
-                            backgroundColor: customization.buttonColor,
-                            borderRadius: customization.buttonStyle === 'pill' ? '50px' : 
-                                        customization.buttonStyle === 'square' ? '8px' : '12px'
-                            }}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            <i className={`bi ${link.icon}`}></i>
-                            <span>{link.title}</span>
-                        </a>
-                        ))}
+                        {links.filter(link => link.is_active).map((link) => {
+                          // Determine display type: use link-specific if set, otherwise use global
+                          const displayType = link.display_type && link.display_type !== 'default' 
+                            ? link.display_type 
+                            : customization.linkDisplayType;
+                          
+                          return displayType === 'button' ? (
+                            // Button View
+                            <a
+                              key={link.id}
+                              href={link.url}
+                              className={`preview-link-btn btn-shape-${customization.buttonStyle} hover-${customization.buttonHoverEffect} ${customization.buttonShadow ? 'with-shadow' : ''}`}
+                              style={{ 
+                                backgroundColor: customization.buttonColor,
+                                border: customization.buttonBorder > 0 
+                                  ? `${customization.buttonBorder}px solid rgba(0, 0, 0, 0.2)` 
+                                  : 'none'
+                              }}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <i className={`bi ${link.icon}`}></i>
+                              <span>{link.title}</span>
+                            </a>
+                          ) : (
+                            // Card View
+                            <a
+                              key={link.id}
+                              href={link.url}
+                              className={`preview-link-card card-hover-${customization.cardHoverEffect} ${customization.cardShadow ? 'with-shadow' : ''}`}
+                              style={{ 
+                                backgroundImage: link.card_background 
+                                  ? `url(${link.card_background})` 
+                                  : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
+                                borderRadius: `${customization.cardBorderRadius}px`
+                              }}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <div className="card-overlay"></div>
+                              <div className="card-content">
+                                <i className={`bi ${link.icon} card-icon`}></i>
+                                <h3 className="card-title">{link.title}</h3>
+                                {link.description && (
+                                  <p className="card-description">{link.description}</p>
+                                )}
+                              </div>
+                            </a>
+                          );
+                        })}
                     </div>
 
                     {/* Footer */}
                     <div className="preview-footer">
-                        <p>Powered by <strong>Lynqio</strong></p>
+                        <p style={{ color: customization.textColor }}>Powered by <strong>Lynqio</strong></p>
                     </div>
                     </div>
                 </div>
@@ -712,6 +960,77 @@ function Editor() {
             </div>
 
             <div className="modal-body">
+              {/* Live Preview Section - Added */}
+              {newLink.type === 'link' && newLink.title && (
+                <div className="link-preview-section">
+                  <label>
+                    <i className="bi bi-eye"></i>
+                    Live Preview
+                  </label>
+                  <div 
+                    className="link-preview-container"
+                    style={{
+                      backgroundColor: customization.backgroundType === 'color' 
+                        ? customization.backgroundColor 
+                        : 'transparent',
+                      backgroundImage: customization.backgroundType === 'image' && customization.backgroundImage
+                        ? `url(${customization.backgroundImage})`
+                        : customization.backgroundType === 'gradient'
+                        ? `linear-gradient(${customization.backgroundGradient.direction}, ${customization.backgroundGradient.colorStart}, ${customization.backgroundGradient.colorEnd})`
+                        : 'none',
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      fontFamily: customization.font,
+                      color: customization.textColor
+                    }}
+                  >
+                    {(() => {
+                      // Determine display type for preview
+                      const displayType = newLink.display_type && newLink.display_type !== 'default' 
+                        ? newLink.display_type 
+                        : customization.linkDisplayType;
+                      
+                      return displayType === 'button' ? (
+                        // Button Preview
+                        <a
+                          className={`preview-link-btn btn-shape-${customization.buttonStyle} hover-${customization.buttonHoverEffect} ${customization.buttonShadow ? 'with-shadow' : ''}`}
+                          style={{ 
+                            backgroundColor: customization.buttonColor,
+                            border: customization.buttonBorder > 0 
+                              ? `${customization.buttonBorder}px solid rgba(0, 0, 0, 0.2)` 
+                              : 'none',
+                            pointerEvents: 'none'
+                          }}
+                        >
+                          {newLink.icon && newLink.icon !== 'bi-ban' && <i className={`bi ${newLink.icon}`}></i>}
+                          <span>{newLink.title}</span>
+                        </a>
+                      ) : (
+                        // Card Preview
+                        <a
+                          className={`preview-link-card card-hover-${customization.cardHoverEffect} ${customization.cardShadow ? 'with-shadow' : ''}`}
+                          style={{ 
+                            backgroundImage: newLink.card_background 
+                              ? `url(${newLink.card_background})` 
+                              : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            borderRadius: `${customization.cardBorderRadius}px`,
+                            pointerEvents: 'none'
+                          }}
+                        >
+                          <div className="card-overlay"></div>
+                          <div className="card-content">
+                            {newLink.icon && newLink.icon !== 'bi-ban' && <i className={`bi ${newLink.icon} card-icon`}></i>}
+                            <h3 className="card-title">{newLink.title}</h3>
+                          </div>
+                        </a>
+                      );
+                    })()}
+                  </div>
+                </div>
+              )}
+
               {/* Type Selector - DODAJ OVO */}
               <div className="form-group">
                 <label>Content Type</label>
@@ -754,6 +1073,7 @@ function Editor() {
 
               {/* URL - SAMO ZA LINK TYPE */}
               {newLink.type === 'link' && (
+                <>
                 <div className="form-group">
                   <label>URL</label>
                   <input
@@ -764,6 +1084,48 @@ function Editor() {
                     onChange={(e) => setNewLink({ ...newLink, url: e.target.value })}
                   />
                 </div>
+
+                {/* Display Type Selector */}
+                <div className="form-group">
+                  <label>Display As</label>
+                  <small className="form-hint">Choose how this link should appear (or use global setting)</small>
+                  <div className="type-selector display-type-selector">
+                    <button
+                      type="button"
+                      className={`type-option ${newLink.display_type === 'default' ? 'active' : ''}`}
+                      onClick={() => setNewLink({
+                        ...newLink,
+                        display_type: 'default'
+                      })}
+                    >
+                      <i className="bi bi-gear"></i>
+                      <span>Global Setting</span>
+                    </button>
+                    <button
+                      type="button"
+                      className={`type-option ${newLink.display_type === 'button' ? 'active' : ''}`}
+                      onClick={() => setNewLink({
+                        ...newLink,
+                        display_type: 'button'
+                      })}
+                    >
+                      <i className="bi bi-square"></i>
+                      <span>Button</span>
+                    </button>
+                    <button
+                      type="button"
+                      className={`type-option ${newLink.display_type === 'card' ? 'active' : ''}`}
+                      onClick={() => setNewLink({
+                        ...newLink,
+                        display_type: 'card'
+                      })}
+                    >
+                      <i className="bi bi-credit-card"></i>
+                      <span>Card</span>
+                    </button>
+                  </div>
+                </div>
+                </>
               )}
 
               <div className="form-group">
@@ -784,6 +1146,46 @@ function Editor() {
                   ))}
                 </div>
               </div>
+
+              {/* Card Background Image Upload - SAMO ZA LINK TYPE */}
+              {newLink.type === 'link' && (newLink.display_type === 'card' || (newLink.display_type === 'default' && customization.linkDisplayType === 'card')) && (
+                <div className="form-group">
+                  <label>
+                    <i className="bi bi-image"></i>
+                    Card Background Image (Optional)
+                  </label>
+                  <small className="form-hint">Upload a custom background for this card</small>
+                  
+                  {!newLink.card_background ? (
+                    <div className="card-bg-upload-box">
+                      <input
+                        type="file"
+                        id="card-bg-upload"
+                        accept="image/*"
+                        onChange={handleCardBackgroundUpload}
+                        style={{ display: 'none' }}
+                      />
+                      <label htmlFor="card-bg-upload" className="upload-box-label">
+                        <i className="bi bi-cloud-upload"></i>
+                        <span>Click to upload background</span>
+                        <small>PNG, JPG up to 5MB</small>
+                      </label>
+                    </div>
+                  ) : (
+                    <div className="card-bg-preview">
+                      <img src={newLink.card_background} alt="Card Background" />
+                      <button 
+                        type="button"
+                        className="btn-remove-card-bg"
+                        onClick={() => setNewLink({ ...newLink, card_background: '' })}
+                      >
+                        <i className="bi bi-trash"></i>
+                        Remove Background
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Menu Items Section - SAMO ZA MENU TYPE */}

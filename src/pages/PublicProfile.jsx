@@ -37,7 +37,11 @@ function PublicProfile() {
       style: 'rounded',
       shadow: true,
       border: 0,
-      hoverEffect: 'lift'
+      hoverEffect: 'lift',
+      linkDisplayType: 'button',
+      cardShadow: true,
+      cardHoverEffect: 'lift',
+      cardBorderRadius: 12
     },
     typography: {
       fontFamily: 'Inter, sans-serif',
@@ -99,7 +103,11 @@ function PublicProfile() {
                 style: parsedTheme.buttonStyle || 'rounded',
                 shadow: true,
                 border: 0,
-                hoverEffect: 'lift'
+                hoverEffect: 'lift',
+                linkDisplayType: parsedTheme.linkDisplayType || 'button',
+                cardShadow: true,
+                cardHoverEffect: 'lift',
+                cardBorderRadius: 12
               },
               typography: {
                 fontFamily: parsedTheme.font || 'Inter, sans-serif',
@@ -253,7 +261,7 @@ function PublicProfile() {
             <div className="public-social-links">
               {customization.profile.socialLinks.instagram && (
                 <a 
-                  href={`https://instagram.com/${customization.profile.socialLinks.instagram}`}
+                  href={`https://instagram.com/${customization.profile.socialLinks.instagram.replace('@', '')}`}
                   className="public-social-icon instagram"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -263,7 +271,7 @@ function PublicProfile() {
               )}
               {customization.profile.socialLinks.twitter && (
                 <a 
-                  href={`https://twitter.com/${customization.profile.socialLinks.twitter}`}
+                  href={`https://twitter.com/${customization.profile.socialLinks.twitter.replace('@', '')}`}
                   className="public-social-icon twitter"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -273,7 +281,7 @@ function PublicProfile() {
               )}
               {customization.profile.socialLinks.tiktok && (
                 <a 
-                  href={`https://tiktok.com/@${customization.profile.socialLinks.tiktok}`}
+                  href={`https://tiktok.com/@${customization.profile.socialLinks.tiktok.replace('@', '')}`}
                   className="public-social-icon tiktok"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -283,7 +291,7 @@ function PublicProfile() {
               )}
               {customization.profile.socialLinks.youtube && (
                 <a 
-                  href={`https://youtube.com/@${customization.profile.socialLinks.youtube}`}
+                  href={`https://youtube.com/@${customization.profile.socialLinks.youtube.replace('@', '')}`}
                   className="public-social-icon youtube"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -293,7 +301,7 @@ function PublicProfile() {
               )}
               {customization.profile.socialLinks.linkedin && (
                 <a 
-                  href={`https://linkedin.com/in/${customization.profile.socialLinks.linkedin}`}
+                  href={`https://linkedin.com/in/${customization.profile.socialLinks.linkedin.replace('@', '')}`}
                   className="public-social-icon linkedin"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -303,7 +311,7 @@ function PublicProfile() {
               )}
               {customization.profile.socialLinks.facebook && (
                 <a 
-                  href={`https://facebook.com/${customization.profile.socialLinks.facebook}`}
+                  href={`https://facebook.com/${customization.profile.socialLinks.facebook.replace('@', '')}`}
                   className="public-social-icon facebook"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -313,7 +321,7 @@ function PublicProfile() {
               )}
               {customization.profile.socialLinks.github && (
                 <a 
-                  href={`https://github.com/${customization.profile.socialLinks.github}`}
+                  href={`https://github.com/${customization.profile.socialLinks.github.replace('@', '')}`}
                   className="public-social-icon github"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -323,7 +331,7 @@ function PublicProfile() {
               )}
               {customization.profile.socialLinks.spotify && (
                 <a 
-                  href={`https://open.spotify.com/user/${customization.profile.socialLinks.spotify}`}
+                  href={`https://open.spotify.com/user/${customization.profile.socialLinks.spotify.replace('@', '')}`}
                   className="public-social-icon spotify"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -342,9 +350,43 @@ function PublicProfile() {
               // Check if it's a menu type
               const isMenu = link.type === 'menu';
               const isExpanded = expandedMenus[link.id];
+              
+              // Determine display type: use link-specific if set, otherwise use global
+              const globalDisplayType = customization.buttons?.linkDisplayType || 'button';
+              const displayType = link.display_type && link.display_type !== 'default' 
+                ? link.display_type 
+                : globalDisplayType;
 
               return (
                 <div key={link.id} className="public-link-wrapper">
+                  {/* Card View */}
+                  {displayType === 'card' && !isMenu ? (
+                    <a
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`public-link-card card-hover-${customization.buttons.cardHoverEffect || 'lift'} ${customization.buttons.cardShadow ? 'with-shadow' : ''}`}
+                      onClick={() => handleLinkClick(link.id)}
+                      style={{
+                        backgroundImage: link.card_background 
+                          ? `url(${link.card_background})` 
+                          : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        borderRadius: `${customization.buttons.cardBorderRadius || 12}px`
+                      }}
+                    >
+                      <div className="card-overlay"></div>
+                      <div className="card-content">
+                        <i className={`bi ${link.icon} card-icon`}></i>
+                        <h3 className="card-title">{link.title}</h3>
+                        {link.description && (
+                          <p className="card-description">{link.description}</p>
+                        )}
+                      </div>
+                    </a>
+                  ) : (
+                    <>
                   {/* Link/Menu Button */}
                   {isMenu ? (
                     // MENU BUTTON
@@ -380,6 +422,8 @@ function PublicProfile() {
                       <i className={`bi ${link.icon}`}></i>
                       <span>{link.title}</span>
                     </a>
+                  )}
+                    </>
                   )}
 
                   {/* Menu Items Dropdown */}

@@ -5,7 +5,7 @@ class Link {
   // Kreiranje novog linka
   static async create(profileId, data) {
     try {
-      const { title, url, description, icon, type, menu_items } = data;
+      const { title, url, description, icon, type, menu_items, card_background, display_type } = data;
       
       // Get next position
       const positionQuery = `
@@ -17,8 +17,8 @@ class Link {
       const position = positionResult.rows[0].next_position;
       
       const query = `
-        INSERT INTO links (profile_id, title, url, description, icon, type, menu_items, position)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        INSERT INTO links (profile_id, title, url, description, icon, type, menu_items, card_background, display_type, position)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         RETURNING *
       `;
       
@@ -30,6 +30,8 @@ class Link {
         icon, 
         type || 'link',
         menu_items ? JSON.stringify(menu_items) : null,
+        card_background || null,
+        display_type || 'default',
         position
       ];
       
@@ -91,7 +93,7 @@ class Link {
   // Update link
   static async update(linkId, data) {
     try {
-      const { title, url, description, icon, is_active, type, menu_items } = data;
+      const { title, url, description, icon, is_active, type, menu_items, card_background, display_type } = data;
       
       const query = `
         UPDATE links 
@@ -102,8 +104,10 @@ class Link {
             is_active = COALESCE($5, is_active),
             type = COALESCE($6, type),
             menu_items = COALESCE($7, menu_items),
+            card_background = COALESCE($8, card_background),
+            display_type = COALESCE($9, display_type),
             updated_at = CURRENT_TIMESTAMP
-        WHERE id = $8
+        WHERE id = $10
         RETURNING *
       `;
       
@@ -115,6 +119,8 @@ class Link {
         is_active, 
         type,
         menu_items ? JSON.stringify(menu_items) : null,
+        card_background,
+        display_type,
         linkId
       ];
       

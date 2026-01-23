@@ -197,9 +197,19 @@ class Profile {
       
       const profile = profileResult.rows[0];
       
+      // Parse customization if it exists and is a string
+      if (profile.customization && typeof profile.customization === 'string') {
+        try {
+          profile.customization = JSON.parse(profile.customization);
+        } catch (e) {
+          console.error('Failed to parse customization in getProfileWithLinks:', e);
+          profile.customization = null;
+        }
+      }
+      
       // Get links
       const linksQuery = `
-        SELECT id, title, url, description, icon, position, click_count, type, menu_items
+        SELECT id, title, url, description, icon, position, click_count, type, menu_items, card_background, display_type, is_active
         FROM links
         WHERE profile_id = $1 AND is_active = true
         ORDER BY position ASC
