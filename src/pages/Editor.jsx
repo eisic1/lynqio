@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useToast } from '../components/toast/ToastContainer';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
@@ -6,24 +6,34 @@ import ConfirmModal from '../components/ConfirmModal';
 import { linksAPI } from '../api/links';
 import { profileAPI } from '../api/profile';
 import LoadingSpinner from '../components/LoadingSpinner';
+import EmojiPicker from 'emoji-picker-react';
 import '../styles/Editor.css';
 
 function Editor() {
   const [links, setLinks] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  // Fetch linkova pri učitavanju
-  useEffect(() => {
-    fetchLinks();
-    fetchProfileSettings();
-  }, []);
-
-  const toast = useToast();
+  const [activeTab, setActiveTab] = useState('links');
+  const [previewDevice, setPreviewDevice] = useState('mobile');
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const titleInputRef = useRef(null);
+  const [titleCursorPosition, setTitleCursorPosition] = useState(0);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [linkToDelete, setLinkToDelete] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-
   const [savingAppearance, setSavingAppearance] = useState(false);
+
+  const toast = useToast();
+
+  const [newLink, setNewLink] = useState({
+    title: '',
+    url: '',
+    icon: 'bi-ban',
+    type: 'link', 
+    menu_items: [],
+    card_background: '',
+    display_type: 'default'
+  });
 
   const [customization, setCustomization] = useState({
     backgroundColor: '#ffffff',
@@ -35,6 +45,35 @@ function Editor() {
     font: 'inter',
     textColor: '#2d3748',
   });
+
+  const [profile, setProfile] = useState({
+    displayName: '',
+    bio: '',
+    avatar: 'https://www.svgrepo.com/show/384674/account-avatar-profile-user-11.svg',
+    avatarShape: 'circle',
+    headerImage: '',
+    socialLinks: {}
+  });
+
+  // Fetch linkova pri učitavanju
+  useEffect(() => {
+    fetchLinks();
+    fetchProfileSettings();
+  }, []);
+
+  // Close emoji picker when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (showEmojiPicker && 
+          !e.target.closest('.emoji-picker-container') && 
+          !e.target.closest('.btn-emoji-picker')) {
+        setShowEmojiPicker(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showEmojiPicker]);
 
   const fetchLinks = async () => {
     setLinks([]);
@@ -96,20 +135,6 @@ function Editor() {
       reader.readAsDataURL(file);
     }
   };
-
-  const [activeTab, setActiveTab] = useState('links');
-  const [previewDevice, setPreviewDevice] = useState('mobile');
-  const [showAddModal, setShowAddModal] = useState(false);
-  //const [editingLink, setEditingLink] = useState(null);
-  const [newLink, setNewLink] = useState({
-    title: '',
-    url: '',
-    icon: 'bi-ban',
-    type: 'link', 
-    menu_items: [],
-    card_background: '',
-    display_type: 'default'
-  });
 
   const handleAddLink = async () => {
     // Validation
@@ -198,11 +223,13 @@ function Editor() {
 
   const onAddNewLink = () => {
     setShowAddModal(true);
+    setShowEmojiPicker(false);
     setNewLink({ title: '', url: '', icon: 'bi-ban', type: 'link', menu_items: [], card_background: '', display_type: 'default' });
   };
 
   const handleEditingLink = (link) => {
     setShowAddModal(true);
+    setShowEmojiPicker(false);
     setNewLink({ 
       id: link.id, 
       title: link.title, 
@@ -214,6 +241,41 @@ function Editor() {
       card_background: link.card_background || '',
       display_type: link.display_type || 'default'
     });
+  };
+
+  // Handle emoji selection for link title
+  const handleEmojiClick = (emojiObject) => {
+    const input = titleInputRef.current;
+    if (input) {
+      const textBefore = newLink.title.substring(0, titleCursorPosition);
+      const textAfter = newLink.title.substring(titleCursorPosition);
+      const newTitle = textBefore + emojiObject.emoji + textAfter;
+      
+      setNewLink({
+        ...newLink,
+        title: newTitle
+      });
+
+      // Set cursor position after emoji
+      setTimeout(() => {
+        const newPosition = titleCursorPosition + emojiObject.emoji.length;
+        input.setSelectionRange(newPosition, newPosition);
+        input.focus();
+        setTitleCursorPosition(newPosition);
+      }, 0);
+    }
+    
+    setShowEmojiPicker(false);
+  };
+
+  // Track cursor position in title input
+  const handleTitleChange = (e) => {
+    setNewLink({ ...newLink, title: e.target.value });
+    setTitleCursorPosition(e.target.selectionStart);
+  };
+
+  const handleTitleClick = (e) => {
+    setTitleCursorPosition(e.target.selectionStart);
   };
 
   // Remove linka
@@ -358,15 +420,6 @@ function Editor() {
       toast.showError('Failed to upload image');
     }
   };
-
-  const [profile, setProfile] = useState({
-    displayName: '',
-    bio: '',
-    avatar: 'https://www.svgrepo.com/show/384674/account-avatar-profile-user-11.svg',
-    avatarShape: 'circle',
-    headerImage: '',
-    socialLinks: {}
-  });
 
   const getSocialUrl = (platform, username) => {
     if (!username) return '';
@@ -1063,12 +1116,37 @@ function Editor() {
               </div>
               <div className="form-group">
                 <label>Link Title</label>
-                <input 
-                  type="text"
-                  placeholder="e.g. My Portfolio"
-                  value={newLink.title}
-                  onChange={(e) => setNewLink({...newLink, title: e.target.value})}
-                />
+                <div className="input-with-emoji">
+                  <input 
+                    ref={titleInputRef}
+                    type="text"
+                    placeholder="e.g. My Portfolio"
+                    value={newLink.title}
+                    onChange={handleTitleChange}
+                    onClick={handleTitleClick}
+                    onKeyUp={handleTitleClick}
+                  />
+                  <button
+                    className="btn-emoji-picker"
+                    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                    type="button"
+                  >
+                    <i className="bi bi-emoji-smile"></i>
+                  </button>
+                </div>
+                
+                {/* Emoji Picker */}
+                {showEmojiPicker && (
+                  <div className="emoji-picker-container">
+                    <EmojiPicker 
+                      onEmojiClick={handleEmojiClick}
+                      width="100%"
+                      height="350px"
+                      searchPlaceholder="Search emoji..."
+                      previewConfig={{ showPreview: false }}
+                    />
+                  </div>
+                )}
               </div>
 
               {/* URL - SAMO ZA LINK TYPE */}
