@@ -22,6 +22,9 @@ function Editor() {
   const [linkToDelete, setLinkToDelete] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [savingAppearance, setSavingAppearance] = useState(false);
+  const [collapsedMenuItems, setCollapsedMenuItems] = useState({});
+  const [expandedMenuPreview, setExpandedMenuPreview] = useState(false);
+  const [livePreviewMenuId, setLivePreviewMenuId] = useState(null);
 
   const toast = useToast();
 
@@ -419,6 +422,13 @@ function Editor() {
       console.error('Upload error:', error);
       toast.showError('Failed to upload image');
     }
+  };
+
+  const toggleMenuItemCollapse = (index) => {
+    setCollapsedMenuItems(prev => ({
+      ...prev,
+      [index]: !prev[index]
+    }));
   };
 
   const getSocialUrl = (platform, username) => {
@@ -927,58 +937,281 @@ function Editor() {
 
                     {/* Links Preview */}
                     <div className="preview-links">
-                        {links.filter(link => link.is_active).map((link) => {
-                          // Determine display type: use link-specific if set, otherwise use global
-                          const displayType = link.display_type && link.display_type !== 'default' 
-                            ? link.display_type 
-                            : customization.linkDisplayType;
-                          
-                          return displayType === 'button' ? (
-                            // Button View
-                            <a
-                              key={link.id}
-                              href={link.url}
-                              className={`preview-link-btn btn-shape-${customization.buttonStyle} hover-${customization.buttonHoverEffect} ${customization.buttonShadow ? 'with-shadow' : ''}`}
-                              style={{ 
-                                backgroundColor: customization.buttonColor,
-                                border: customization.buttonBorder > 0 
-                                  ? `${customization.buttonBorder}px solid rgba(0, 0, 0, 0.2)` 
-                                  : 'none'
-                              }}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              <i className={`bi ${link.icon}`}></i>
-                              <span>{link.title}</span>
-                            </a>
-                          ) : (
-                            // Card View
-                            <a
-                              key={link.id}
-                              href={link.url}
-                              className={`preview-link-card card-hover-${customization.cardHoverEffect} ${customization.cardShadow ? 'with-shadow' : ''}`}
-                              style={{ 
-                                backgroundImage: link.card_background 
-                                  ? `url(${link.card_background})` 
-                                  : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                backgroundSize: 'cover',
-                                backgroundPosition: 'center',
-                                borderRadius: `${customization.cardBorderRadius}px`
-                              }}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              <div className="card-overlay"></div>
-                              <div className="card-content">
-                                <i className={`bi ${link.icon} card-icon`}></i>
-                                <h3 className="card-title">{link.title}</h3>
-                                {link.description && (
-                                  <p className="card-description">{link.description}</p>
-                                )}
+                        {livePreviewMenuId ? (
+                          // Menu Items View
+                          (() => {
+                            const menuLink = links.find(l => l.id === livePreviewMenuId);
+                            const menuItems = menuLink?.menu_items || [];
+                            const menuDisplayStyle = customization.menuDisplayStyle || 'list';
+
+                            return (
+                              <div className="preview-menu-view">
+                                {/* Back Button */}
+                                <button
+                                  className="preview-menu-back"
+                                  onClick={() => setLivePreviewMenuId(null)}
+                                  style={{ 
+                                    color: customization.buttonColor,
+                                    background: 'rgba(255, 255, 255, 0.9)',
+                                    backdropFilter: 'blur(10px)',
+                                    border: '2px solid rgba(255, 255, 255, 0.3)',
+                                    padding: '0.75rem 1.5rem',
+                                    borderRadius: '12px',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem',
+                                    fontSize: '0.95rem',
+                                    fontWeight: '600',
+                                    cursor: 'pointer',
+                                    marginBottom: '1.5rem',
+                                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+                                    transition: 'all 0.3s ease',
+                                    width: 'fit-content'
+                                  }}
+                                >
+                                  <i className="bi bi-arrow-left"></i>
+                                  Back
+                                </button>
+
+                                {/* Menu Title */}
+                                <div 
+                                  style={{
+                                    background: 'rgba(255, 255, 255, 0.85)',
+                                    backdropFilter: 'blur(20px)',
+                                    padding: '1.5rem',
+                                    borderRadius: '16px',
+                                    marginBottom: '1.5rem',
+                                    textAlign: 'center',
+                                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                                    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)'
+                                  }}
+                                >
+                                  <h3 style={{ 
+                                    margin: 0, 
+                                    fontSize: '1.5rem', 
+                                    fontWeight: '700',
+                                    color: customization.textColor 
+                                  }}>
+                                    {menuLink.title}
+                                  </h3>
+                                  {menuLink.description && (
+                                    <p style={{ 
+                                      margin: '0.5rem 0 0 0', 
+                                      opacity: 0.8,
+                                      color: customization.textColor 
+                                    }}>
+                                      {menuLink.description}
+                                    </p>
+                                  )}
+                                </div>
+
+                                {/* Menu Items */}
+                                <div className={`preview-menu-items menu-style-${menuDisplayStyle}`}>
+                                  {menuItems.length === 0 ? (
+                                    <div style={{
+                                      textAlign: 'center',
+                                      padding: '3rem 2rem',
+                                      background: 'rgba(255, 255, 255, 0.85)',
+                                      backdropFilter: 'blur(20px)',
+                                      borderRadius: '16px',
+                                      border: '1px solid rgba(255, 255, 255, 0.2)'
+                                    }}>
+                                      <i className="bi bi-card-list" style={{ fontSize: '3rem', color: '#cbd5e0', marginBottom: '1rem', display: 'block' }}></i>
+                                      <p style={{ margin: 0, color: '#718096' }}>No menu items</p>
+                                    </div>
+                                  ) : (
+                                    menuItems.map((item, idx) => (
+                                      <div 
+                                        key={idx}
+                                        style={{
+                                          background: 'rgba(255, 255, 255, 0.85)',
+                                          backdropFilter: 'blur(20px)',
+                                          borderRadius: '14px',
+                                          overflow: 'hidden',
+                                          border: '1px solid rgba(255, 255, 255, 0.2)',
+                                          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
+                                          transition: 'all 0.3s ease',
+                                          ...(menuDisplayStyle === 'list' && {
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            padding: '1.25rem'
+                                          }),
+                                          ...(menuDisplayStyle === 'grid' && {
+                                            display: 'flex',
+                                            flexDirection: 'column'
+                                          }),
+                                          ...(menuDisplayStyle === 'cards' && {
+                                            display: 'flex',
+                                            flexDirection: 'column'
+                                          })
+                                        }}
+                                      >
+                                        {/* Image */}
+                                        {item.image && (
+                                          <div style={{
+                                            ...(menuDisplayStyle === 'list' && {
+                                              width: '70px',
+                                              height: '70px',
+                                              borderRadius: '10px',
+                                              overflow: 'hidden',
+                                              marginRight: '1rem',
+                                              flexShrink: 0
+                                            }),
+                                            ...(menuDisplayStyle === 'grid' && {
+                                              width: '100%',
+                                              height: '180px',
+                                              overflow: 'hidden'
+                                            }),
+                                            ...(menuDisplayStyle === 'cards' && {
+                                              width: '100%',
+                                              height: '220px',
+                                              overflow: 'hidden'
+                                            })
+                                          }}>
+                                            <img 
+                                              src={item.image} 
+                                              alt={item.name}
+                                              style={{
+                                                width: '100%',
+                                                height: '100%',
+                                                objectFit: 'cover'
+                                              }}
+                                            />
+                                          </div>
+                                        )}
+
+                                        {/* Content */}
+                                        <div style={{ 
+                                          flex: 1,
+                                          padding: menuDisplayStyle === 'list' ? '0' : '1.25rem'
+                                        }}>
+                                          <div style={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'flex-start',
+                                            marginBottom: '0.4rem',
+                                            gap: '1rem'
+                                          }}>
+                                            <h4 style={{
+                                              margin: 0,
+                                              fontSize: menuDisplayStyle === 'cards' ? '1.25rem' : '1rem',
+                                              fontWeight: '600',
+                                              color: customization.textColor
+                                            }}>
+                                              {item.name}
+                                            </h4>
+                                            {item.price && (
+                                              <span style={{
+                                                fontWeight: '700',
+                                                color: customization.buttonColor,
+                                                fontSize: menuDisplayStyle === 'cards' ? '1.25rem' : '1rem',
+                                                whiteSpace: 'nowrap'
+                                              }}>
+                                                {item.currency || '$'}{item.price}
+                                              </span>
+                                            )}
+                                          </div>
+                                          {item.description && (
+                                            <p style={{
+                                              margin: 0,
+                                              fontSize: '0.875rem',
+                                              color: '#718096',
+                                              lineHeight: '1.5'
+                                            }}>
+                                              {item.description}
+                                            </p>
+                                          )}
+                                        </div>
+                                      </div>
+                                    ))
+                                  )}
+                                </div>
                               </div>
-                            </a>
-                          );
-                        })}
+                            );
+                          })()
+                        ) : (
+                          // Regular Links View
+                          links.filter(link => link.is_active).map((link) => {
+                            const isMenu = link.type === 'menu';
+                            
+                            // For menu links, always show as button
+                            if (isMenu) {
+                              return (
+                                <button
+                                  key={link.id}
+                                  className={`preview-link-btn btn-shape-${customization.buttonStyle} hover-${customization.buttonHoverEffect} ${customization.buttonShadow ? 'with-shadow' : ''}`}
+                                  style={{ 
+                                    backgroundColor: customization.buttonColor,
+                                    border: customization.buttonBorder > 0 
+                                      ? `${customization.buttonBorder}px solid rgba(0, 0, 0, 0.2)` 
+                                      : 'none',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '0.5rem',
+                                    cursor: 'pointer'
+                                  }}
+                                  onClick={() => setLivePreviewMenuId(link.id)}
+                                >
+                                  {link.icon && link.icon !== 'bi-ban' && <i className={`bi ${link.icon}`}></i>}
+                                  <span>{link.title}</span>
+                                  <i className="bi bi-arrow-right" style={{ marginLeft: 'auto', fontSize: '0.85rem', opacity: 0.8 }}></i>
+                                </button>
+                              );
+                            }
+
+                            // Regular links - button or card
+                            const displayType = link.display_type && link.display_type !== 'default' 
+                              ? link.display_type 
+                              : customization.linkDisplayType;
+                            
+                            return displayType === 'button' ? (
+                              // Button View
+                              <a
+                                key={link.id}
+                                href={link.url}
+                                className={`preview-link-btn btn-shape-${customization.buttonStyle} hover-${customization.buttonHoverEffect} ${customization.buttonShadow ? 'with-shadow' : ''}`}
+                                style={{ 
+                                  backgroundColor: customization.buttonColor,
+                                  border: customization.buttonBorder > 0 
+                                    ? `${customization.buttonBorder}px solid rgba(0, 0, 0, 0.2)` 
+                                    : 'none'
+                                }}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                {link.icon && link.icon !== 'bi-ban' && <i className={`bi ${link.icon}`}></i>}
+                                <span>{link.title}</span>
+                              </a>
+                            ) : (
+                              // Card View
+                              <a
+                                key={link.id}
+                                href={link.url}
+                                className={`preview-link-card card-hover-${customization.cardHoverEffect} ${customization.cardShadow ? 'with-shadow' : ''}`}
+                                style={{ 
+                                  backgroundImage: link.card_background 
+                                    ? `url(${link.card_background})` 
+                                    : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                  backgroundSize: 'cover',
+                                  backgroundPosition: 'center',
+                                  borderRadius: `${customization.cardBorderRadius}px`
+                                }}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <div className="card-overlay"></div>
+                                <div className="card-content">
+                                  {link.icon && link.icon !== 'bi-ban' && <i className={`bi ${link.icon} card-icon`}></i>}
+                                  <h3 className="card-title">{link.title}</h3>
+                                  {link.description && (
+                                    <p className="card-description">{link.description}</p>
+                                  )}
+                                </div>
+                              </a>
+                            );
+                          })
+                        )}
                     </div>
 
                     {/* Footer */}
@@ -1013,7 +1246,7 @@ function Editor() {
             </div>
 
             <div className="modal-body">
-              {/* Live Preview Section - Added */}
+              {/* Live Preview Section - Link */}
               {newLink.type === 'link' && newLink.title && (
                 <div className="link-preview-section">
                   <label>
@@ -1084,7 +1317,154 @@ function Editor() {
                 </div>
               )}
 
-              {/* Type Selector - DODAJ OVO */}
+              {/* Menu Button Preview - Always shows as button */}
+              {newLink.type === 'menu' && newLink.title && (
+                <div className="link-preview-section">
+                  <label>
+                    <i className="bi bi-eye"></i>
+                    Menu Button Preview (Click to see dropdown)
+                  </label>
+                  <div 
+                    className="link-preview-container"
+                    style={{
+                      backgroundColor: customization.backgroundType === 'color' 
+                        ? customization.backgroundColor 
+                        : 'transparent',
+                      backgroundImage: customization.backgroundType === 'image' && customization.backgroundImage
+                        ? `url(${customization.backgroundImage})`
+                        : 'none',
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      fontFamily: customization.font,
+                      color: customization.textColor
+                    }}
+                  >
+                    <button
+                      className={`preview-link-btn btn-shape-${customization.buttonStyle} hover-${customization.buttonHoverEffect} ${customization.buttonShadow ? 'with-shadow' : ''}`}
+                      style={{ 
+                        backgroundColor: customization.buttonColor,
+                        border: customization.buttonBorder > 0 
+                          ? `${customization.buttonBorder}px solid rgba(0, 0, 0, 0.2)` 
+                          : 'none',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem',
+                        cursor: 'pointer'
+                      }}
+                      onClick={() => setExpandedMenuPreview(!expandedMenuPreview)}
+                    >
+                      {newLink.icon && newLink.icon !== 'bi-ban' && <i className={`bi ${newLink.icon}`}></i>}
+                      <span>{newLink.title}</span>
+                      <i 
+                        className={`bi ${expandedMenuPreview ? 'bi-chevron-up' : 'bi-chevron-down'}`}
+                        style={{ marginLeft: 'auto', fontSize: '0.75rem', opacity: 0.8 }}
+                      ></i>
+                    </button>
+
+                    {/* Dropdown preview when clicked */}
+                    {expandedMenuPreview && newLink.menu_items.length > 0 && (
+                      <div 
+                        style={{
+                          marginTop: '0.5rem',
+                          padding: '0.75rem',
+                          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                          borderRadius: '12px',
+                          backdropFilter: 'blur(10px)',
+                          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                          maxHeight: '300px',
+                          overflowY: 'auto'
+                        }}
+                      >
+                        {newLink.menu_items.map((item, idx) => (
+                          <div 
+                            key={idx}
+                            style={{
+                              display: 'flex',
+                              gap: '0.75rem',
+                              padding: '0.75rem',
+                              marginBottom: idx < newLink.menu_items.length - 1 ? '0.5rem' : '0',
+                              borderBottom: idx < newLink.menu_items.length - 1 ? '1px solid rgba(0, 0, 0, 0.1)' : 'none',
+                              color: '#2d3748'
+                            }}
+                          >
+                            {item.image && (
+                              <img 
+                                src={item.image}
+                                alt={item.name}
+                                style={{
+                                  width: '50px',
+                                  height: '50px',
+                                  objectFit: 'cover',
+                                  borderRadius: '8px'
+                                }}
+                              />
+                            )}
+                            <div style={{ flex: 1 }}>
+                              <div style={{ 
+                                display: 'flex', 
+                                justifyContent: 'space-between',
+                                alignItems: 'flex-start',
+                                marginBottom: '0.25rem'
+                              }}>
+                                <span style={{ fontWeight: '600', fontSize: '0.9rem' }}>
+                                  {item.name}
+                                </span>
+                                {item.price && (
+                                  <span style={{ fontWeight: '700', color: customization.buttonColor }}>
+                                    {item.currency || '$'}{item.price}
+                                  </span>
+                                )}
+                              </div>
+                              {item.description && (
+                                <p style={{ 
+                                  fontSize: '0.8rem', 
+                                  color: '#718096',
+                                  margin: 0 
+                                }}>
+                                  {item.description}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Menu Preview Section */}
+              {newLink.type === 'menu' && newLink.menu_items.length > 0 && (
+                <div className="menu-preview-section">
+                  <label>
+                    <i className="bi bi-eye"></i>
+                    Menu Preview ({newLink.menu_items.length} items)
+                  </label>
+                  <div className="menu-preview-items">
+                    {newLink.menu_items.map((item, index) => (
+                      <div key={index} className="menu-preview-item">
+                        {item.image && (
+                          <div className="menu-preview-item-image">
+                            <img src={item.image} alt={item.name} />
+                          </div>
+                        )}
+                        <div className="menu-preview-item-content">
+                          <h4 className="menu-preview-item-name">{item.name}</h4>
+                          {item.description && (
+                            <p className="menu-preview-item-description">{item.description}</p>
+                          )}
+                        </div>
+                        <div className="menu-preview-item-price">
+                          {item.price} {item.currency}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Type Selector */}
               <div className="form-group">
                 <label>Content Type</label>
                 <div className="type-selector">
@@ -1277,20 +1657,52 @@ function Editor() {
                 {/* Menu Items List */}
                 {newLink.menu_items.length > 0 ? (
                   <div className="menu-items-list">
-                    {newLink.menu_items.map((item, index) => (
-                      <div key={index} className="menu-item-card">
-                        <div className="menu-item-header">
-                          <span className="menu-item-number">#{index + 1}</span>
-                          <button
-                            type="button"
-                            className="btn-remove-item"
-                            onClick={() => {
-                              const updatedItems = newLink.menu_items.filter((_, i) => i !== index);
-                              setNewLink({ ...newLink, menu_items: updatedItems });
-                            }}
-                          >
-                            <i className="bi bi-trash"></i>
-                          </button>
+                    {newLink.menu_items.map((item, index) => {
+                      const isCollapsed = collapsedMenuItems[index];
+                      return (
+                      <div key={index} className={`menu-item-card ${isCollapsed ? 'collapsed' : ''}`}>
+                        <div className="menu-item-header" onClick={() => toggleMenuItemCollapse(index)}>
+                          <div className="menu-item-header-left">
+                            <div className="menu-item-drag-handle">
+                              <i className="bi bi-grip-vertical"></i>
+                            </div>
+                            <span className="menu-item-number">#{index + 1}</span>
+                            <div className="menu-item-summary">
+                              <div className="menu-item-summary-text">
+                                <span className="menu-item-summary-name">
+                                  {item.name || 'Unnamed Item'}
+                                </span>
+                                {item.price && (
+                                  <span className="menu-item-summary-price">
+                                    {item.price} {item.currency}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="menu-item-header-actions">
+                            <button
+                              type="button"
+                              className="btn-toggle-collapse"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleMenuItemCollapse(index);
+                              }}
+                            >
+                              <i className={`bi bi-chevron-${isCollapsed ? 'down' : 'up'}`}></i>
+                            </button>
+                            <button
+                              type="button"
+                              className="btn-remove-item"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const updatedItems = newLink.menu_items.filter((_, i) => i !== index);
+                                setNewLink({ ...newLink, menu_items: updatedItems });
+                              }}
+                            >
+                              <i className="bi bi-trash"></i>
+                            </button>
+                          </div>
                         </div>
                         
                         <div className="menu-item-fields">
@@ -1394,7 +1806,8 @@ function Editor() {
                           </div>
                         </div>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ) : (
                   <div className="empty-menu-state">

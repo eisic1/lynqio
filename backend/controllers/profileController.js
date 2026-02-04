@@ -61,10 +61,14 @@ const getPublicProfile = async (req, res) => {
     // Increment views
     await Profile.incrementViews(profile.id);
 
+    // Separate links from profile object
+    const { links, ...profileData } = profile;
+
     res.status(200).json({
       success: true,
       data: {
-        profile
+        profile: profileData,
+        links: links || []
       }
     });
 

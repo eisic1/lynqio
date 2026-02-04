@@ -7,6 +7,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Editor from './pages/Editor';
 import PublicProfile from './pages/PublicProfile';
+import PublicMenu from './pages/PublicMenu';
 import Appearance from './pages/Appearance';
 import Settings from './pages/Settings';
 import Analytics from './pages/Analytics';
@@ -21,9 +22,10 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/analytics" element={<Analytics />} />
         <Route path="/editor" element={<Editor />} />
-        <Route path="/:username" element={<PublicProfile />} />
         <Route path="/appearance" element={<Appearance />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/:username/menu/:linkId" element={<PublicMenu />} />
+        <Route path="/:username" element={<PublicProfile />} />
       </Routes>
     </Router>
   );

@@ -139,6 +139,17 @@
   margin-left: auto;
 }
 
+.menu-arrow {
+  font-size: 1rem;
+  opacity: 0.8;
+  margin-left: auto;
+  transition: transform 0.3s ease;
+}
+
+.public-link-btn:hover .menu-arrow {
+  transform: translateX(4px);
+}
+
 .public-link-btn.rounded {
   border-radius: 12px;
 }
@@ -149,6 +160,16 @@
 
 .public-link-btn.pill {
   border-radius: 50px;
+}
+
+/* Menu Container & Dropdown */
+.menu-container {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.menu-dropdown {
+  overflow: hidden;
 }
 
 /* No Links Message */

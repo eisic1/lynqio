@@ -55,12 +55,15 @@ function Appearance() {
     cardShadow: true,
     cardHoverEffect: 'lift',
     cardBorderRadius: 12,
+    menuDisplayStyle: 'list',
     font: 'inter',
     textColor: '#2d3748'
   });
 
   const [previewDevice, setPreviewDevice] = useState('mobile');
   const [activeSection, setActiveSection] = useState('profile');
+  const [expandedMenuInPreview, setExpandedMenuInPreview] = useState(null);
+  const [livePreviewMenuId, setLivePreviewMenuId] = useState(null);
 
   // Font options
   const fonts = [
@@ -209,6 +212,14 @@ function Appearance() {
             cardShadow: customization.buttons.cardShadow !== undefined ? customization.buttons.cardShadow : true,
             cardHoverEffect: customization.buttons.cardHoverEffect || 'lift',
             cardBorderRadius: customization.buttons.cardBorderRadius || 12
+          }));
+        }
+        
+        // Učitaj menu settings
+        if (customization.menu) {
+          setLocalCustomization(prev => ({
+            ...prev,
+            menuDisplayStyle: customization.menu.displayStyle || 'list'
           }));
         }
         
@@ -411,6 +422,9 @@ function Appearance() {
           cardShadow: localCustomization.cardShadow,
           cardHoverEffect: localCustomization.cardHoverEffect,
           cardBorderRadius: localCustomization.cardBorderRadius
+        },
+        menu: {
+          displayStyle: localCustomization.menuDisplayStyle
         },
         typography: {
           fontFamily: localCustomization.font,
@@ -1093,6 +1107,47 @@ function Appearance() {
                     </div>
                   </div>
 
+                  {/* Menu Display Style */}
+                  <div className="setting-group">
+                    <label>
+                      <i className="bi bi-list-ul"></i>
+                      Menu Display Style
+                    </label>
+                    <small className="setting-hint">Choose how menu items will be displayed</small>
+                    <div className="toggle-buttons">
+                      <button
+                        className={`toggle-btn ${localCustomization.menuDisplayStyle === 'list' ? 'active' : ''}`}
+                        onClick={() => setLocalCustomization({
+                          ...localCustomization,
+                          menuDisplayStyle: 'list'
+                        })}
+                      >
+                        <i className="bi bi-list"></i>
+                        List
+                      </button>
+                      <button
+                        className={`toggle-btn ${localCustomization.menuDisplayStyle === 'grid' ? 'active' : ''}`}
+                        onClick={() => setLocalCustomization({
+                          ...localCustomization,
+                          menuDisplayStyle: 'grid'
+                        })}
+                      >
+                        <i className="bi bi-grid-3x3"></i>
+                        Grid
+                      </button>
+                      <button
+                        className={`toggle-btn ${localCustomization.menuDisplayStyle === 'cards' ? 'active' : ''}`}
+                        onClick={() => setLocalCustomization({
+                          ...localCustomization,
+                          menuDisplayStyle: 'cards'
+                        })}
+                      >
+                        <i className="bi bi-card-image"></i>
+                        Cards
+                      </button>
+                    </div>
+                  </div>
+
                   {/* Button-specific options */}
                   {localCustomization.linkDisplayType === 'button' && (
                     <>
@@ -1747,56 +1802,279 @@ function Appearance() {
 
                     {/* Links Preview */}
                     <div className="preview-links">
-                      {links.filter(link => link.is_active).map((link) => {
-                        // Determine display type: use link-specific if set, otherwise use global
-                        const displayType = link.display_type && link.display_type !== 'default' 
-                          ? link.display_type 
-                          : localCustomization.linkDisplayType;
-                        
-                        return displayType === 'button' ? (
-                        // Button View
-                          <a
-                            key={link.id}
-                            href={link.url}
-                            className={`preview-link-btn btn-shape-${localCustomization.buttonStyle} hover-${localCustomization.buttonHoverEffect} ${localCustomization.buttonShadow ? 'with-shadow' : ''}`}
-                            style={{ 
-                              backgroundColor: localCustomization.buttonColor,
-                              border: localCustomization.buttonBorder > 0 
-                                ? `${localCustomization.buttonBorder}px solid rgba(0, 0, 0, 0.2)` 
-                                : 'none'
-                            }}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <i className={`bi ${link.icon}`}></i>
-                            <span>{link.title}</span>
-                          </a>
-                        ) : (
-                        // Card View
-                          <a
-                            key={link.id}
-                            href={link.url}
-                            className={`preview-link-card card-hover-${localCustomization.cardHoverEffect} ${localCustomization.cardShadow ? 'with-shadow' : ''}`}
-                            style={{ 
-                              backgroundImage: link.card_background ? `url(${link.card_background})` : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                              backgroundSize: 'cover',
-                              backgroundPosition: 'center',
-                              borderRadius: `${localCustomization.cardBorderRadius}px`
-                            }}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <div className="card-overlay"></div>
-                            <div className="card-content">
-                              <i className={`bi ${link.icon} card-icon`}></i>
-                              <h3 className="card-title">{link.title}</h3>
-                              {link.description && (
-                                <p className="card-description">{link.description}</p>
-                              )}
+                      {livePreviewMenuId ? (
+                        // Menu Items View
+                        (() => {
+                          const menuLink = links.find(l => l.id === livePreviewMenuId);
+                          const menuItems = menuLink?.menu_items || [];
+                          const menuDisplayStyle = localCustomization.menuDisplayStyle || 'list';
+
+                          return (
+                            <div className="preview-menu-view">
+                              {/* Back Button */}
+                              <button
+                                className="preview-menu-back"
+                                onClick={() => setLivePreviewMenuId(null)}
+                                style={{ 
+                                  color: localCustomization.buttonColor,
+                                  background: 'rgba(255, 255, 255, 0.9)',
+                                  backdropFilter: 'blur(10px)',
+                                  border: '2px solid rgba(255, 255, 255, 0.3)',
+                                  padding: '0.75rem 1.5rem',
+                                  borderRadius: '12px',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '0.5rem',
+                                  fontSize: '0.95rem',
+                                  fontWeight: '600',
+                                  cursor: 'pointer',
+                                  marginBottom: '1.5rem',
+                                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+                                  transition: 'all 0.3s ease',
+                                  width: 'fit-content'
+                                }}
+                              >
+                                <i className="bi bi-arrow-left"></i>
+                                Back
+                              </button>
+
+                              {/* Menu Title */}
+                              <div 
+                                style={{
+                                  background: 'rgba(255, 255, 255, 0.85)',
+                                  backdropFilter: 'blur(20px)',
+                                  padding: '1.5rem',
+                                  borderRadius: '16px',
+                                  marginBottom: '1.5rem',
+                                  textAlign: 'center',
+                                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)'
+                                }}
+                              >
+                                <h3 style={{ 
+                                  margin: 0, 
+                                  fontSize: '1.5rem', 
+                                  fontWeight: '700',
+                                  color: localCustomization.textColor 
+                                }}>
+                                  {menuLink.title}
+                                </h3>
+                                {menuLink.description && (
+                                  <p style={{ 
+                                    margin: '0.5rem 0 0 0', 
+                                    opacity: 0.8,
+                                    color: localCustomization.textColor 
+                                  }}>
+                                    {menuLink.description}
+                                  </p>
+                                )}
+                              </div>
+
+                              {/* Menu Items */}
+                              <div className={`preview-menu-items menu-style-${menuDisplayStyle}`}>
+                                {menuItems.length === 0 ? (
+                                  <div style={{
+                                    textAlign: 'center',
+                                    padding: '3rem 2rem',
+                                    background: 'rgba(255, 255, 255, 0.85)',
+                                    backdropFilter: 'blur(20px)',
+                                    borderRadius: '16px',
+                                    border: '1px solid rgba(255, 255, 255, 0.2)'
+                                  }}>
+                                    <i className="bi bi-card-list" style={{ fontSize: '3rem', color: '#cbd5e0', marginBottom: '1rem', display: 'block' }}></i>
+                                    <p style={{ margin: 0, color: '#718096' }}>No menu items</p>
+                                  </div>
+                                ) : (
+                                  menuItems.map((item, idx) => (
+                                    <div 
+                                      key={idx}
+                                      style={{
+                                        background: 'rgba(255, 255, 255, 0.85)',
+                                        backdropFilter: 'blur(20px)',
+                                        borderRadius: '14px',
+                                        overflow: 'hidden',
+                                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                                        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
+                                        transition: 'all 0.3s ease',
+                                        ...(menuDisplayStyle === 'list' && {
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          padding: '1.25rem'
+                                        }),
+                                        ...(menuDisplayStyle === 'grid' && {
+                                          display: 'flex',
+                                          flexDirection: 'column'
+                                        }),
+                                        ...(menuDisplayStyle === 'cards' && {
+                                          display: 'flex',
+                                          flexDirection: 'column'
+                                        })
+                                      }}
+                                    >
+                                      {/* Image */}
+                                      {item.image && (
+                                        <div style={{
+                                          ...(menuDisplayStyle === 'list' && {
+                                            width: '70px',
+                                            height: '70px',
+                                            borderRadius: '10px',
+                                            overflow: 'hidden',
+                                            marginRight: '1rem',
+                                            flexShrink: 0
+                                          }),
+                                          ...(menuDisplayStyle === 'grid' && {
+                                            width: '100%',
+                                            height: '180px',
+                                            overflow: 'hidden'
+                                          }),
+                                          ...(menuDisplayStyle === 'cards' && {
+                                            width: '100%',
+                                            height: '220px',
+                                            overflow: 'hidden'
+                                          })
+                                        }}>
+                                          <img 
+                                            src={item.image} 
+                                            alt={item.name}
+                                            style={{
+                                              width: '100%',
+                                              height: '100%',
+                                              objectFit: 'cover'
+                                            }}
+                                          />
+                                        </div>
+                                      )}
+
+                                      {/* Content */}
+                                      <div style={{ 
+                                        flex: 1,
+                                        padding: menuDisplayStyle === 'list' ? '0' : '1.25rem'
+                                      }}>
+                                        <div style={{
+                                          display: 'flex',
+                                          justifyContent: 'space-between',
+                                          alignItems: 'flex-start',
+                                          marginBottom: '0.4rem',
+                                          gap: '1rem'
+                                        }}>
+                                          <h4 style={{
+                                            margin: 0,
+                                            fontSize: menuDisplayStyle === 'cards' ? '1.25rem' : '1rem',
+                                            fontWeight: '600',
+                                            color: localCustomization.textColor
+                                          }}>
+                                            {item.name}
+                                          </h4>
+                                          {item.price && (
+                                            <span style={{
+                                              fontWeight: '700',
+                                              color: localCustomization.buttonColor,
+                                              fontSize: menuDisplayStyle === 'cards' ? '1.25rem' : '1rem',
+                                              whiteSpace: 'nowrap'
+                                            }}>
+                                              {item.currency || '$'}{item.price}
+                                            </span>
+                                          )}
+                                        </div>
+                                        {item.description && (
+                                          <p style={{
+                                            margin: 0,
+                                            fontSize: '0.875rem',
+                                            color: '#718096',
+                                            lineHeight: '1.5'
+                                          }}>
+                                            {item.description}
+                                          </p>
+                                        )}
+                                      </div>
+                                    </div>
+                                  ))
+                                )}
+                              </div>
                             </div>
-                          </a>
-                        );
-                      })}
+                          );
+                        })()
+                      ) : (
+                        // Regular Links View
+                        links.filter(link => link.is_active).map((link) => {
+                          const isMenu = link.type === 'menu';
+                          
+                          // For menu links, always show as button
+                          if (isMenu) {
+                            return (
+                              <button
+                                key={link.id}
+                                className={`preview-link-btn btn-shape-${localCustomization.buttonStyle} hover-${localCustomization.buttonHoverEffect} ${localCustomization.buttonShadow ? 'with-shadow' : ''}`}
+                                style={{ 
+                                  backgroundColor: localCustomization.buttonColor,
+                                  border: localCustomization.buttonBorder > 0 
+                                    ? `${localCustomization.buttonBorder}px solid rgba(0, 0, 0, 0.2)` 
+                                    : 'none',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  gap: '0.5rem',
+                                  cursor: 'pointer'
+                                }}
+                                onClick={() => setLivePreviewMenuId(link.id)}
+                              >
+                                {link.icon && link.icon !== 'bi-ban' && <i className={`bi ${link.icon}`}></i>}
+                                <span>{link.title}</span>
+                                <i className="bi bi-arrow-right" style={{ marginLeft: 'auto', fontSize: '0.85rem', opacity: 0.8 }}></i>
+                              </button>
+                            );
+                          }
+
+                          // Regular links - button or card
+                          const displayType = link.display_type && link.display_type !== 'default' 
+                            ? link.display_type 
+                            : localCustomization.linkDisplayType;
+                          
+                          return displayType === 'button' ? (
+                            // Button View
+                            <a
+                              key={link.id}
+                              href={link.url}
+                              className={`preview-link-btn btn-shape-${localCustomization.buttonStyle} hover-${localCustomization.buttonHoverEffect} ${localCustomization.buttonShadow ? 'with-shadow' : ''}`}
+                              style={{ 
+                                backgroundColor: localCustomization.buttonColor,
+                                border: localCustomization.buttonBorder > 0 
+                                  ? `${localCustomization.buttonBorder}px solid rgba(0, 0, 0, 0.2)` 
+                                  : 'none'
+                              }}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {link.icon && link.icon !== 'bi-ban' && <i className={`bi ${link.icon}`}></i>}
+                              <span>{link.title}</span>
+                            </a>
+                          ) : (
+                            // Card View
+                            <a
+                              key={link.id}
+                              href={link.url}
+                              className={`preview-link-card card-hover-${localCustomization.cardHoverEffect} ${localCustomization.cardShadow ? 'with-shadow' : ''}`}
+                              style={{ 
+                                backgroundImage: link.card_background ? `url(${link.card_background})` : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
+                                borderRadius: `${localCustomization.cardBorderRadius}px`
+                              }}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <div className="card-overlay"></div>
+                              <div className="card-content">
+                                {link.icon && link.icon !== 'bi-ban' && <i className={`bi ${link.icon} card-icon`}></i>}
+                                <h3 className="card-title">{link.title}</h3>
+                                {link.description && (
+                                  <p className="card-description">{link.description}</p>
+                                )}
+                              </div>
+                            </a>
+                          );
+                        })
+                      )}
                     </div>
 
                     {/* Footer */}

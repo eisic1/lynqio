@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { profileAPI } from '../api/profile';
 import { linksAPI } from '../api/links';
 import '../styles/PublicProfile.css';
 
 function PublicProfile() {
   const { username } = useParams();
+  const navigate = useNavigate();
   
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [profileData, setProfileData] = useState(null);
-  const [expandedMenus, setExpandedMenus] = useState({});
   const [customization, setCustomization] = useState({
     profile: {
       displayName: '',
@@ -63,13 +63,14 @@ function PublicProfile() {
       
       if (response.success) {
         const profile = response.data.profile;
+        const links = response.data.links || [];
         
         setProfileData({
           displayName: profile.title || `@${profile.username}`,
           bio: profile.bio || '',
           avatar: profile.profile_image_url || profile.user_avatar || `https://ui-avatars.com/api/?name=${profile.title.replace(' ', '+')}&background=667eea&color=fff&size=150`,
           username: profile.username || profile.slug,
-          links: profile.links || []
+          links: links
         });
 
         // ✅ Parse customization iz baze (umesto theme)
@@ -150,12 +151,8 @@ function PublicProfile() {
     }
   };
 
-  // Toggle menu dropdown
-  const handleToggleMenu = (linkId) => {
-    setExpandedMenus(prev => ({
-      ...prev,
-      [linkId]: !prev[linkId]
-    }));
+  const handleMenuClick = (linkId) => {
+    navigate(`/${username}/menu/${linkId}`);
   };
 
   // Loading state
@@ -349,7 +346,6 @@ function PublicProfile() {
             activeLinks.map((link) => {
               // Check if it's a menu type
               const isMenu = link.type === 'menu';
-              const isExpanded = expandedMenus[link.id];
               
               // Determine display type: use link-specific if set, otherwise use global
               const globalDisplayType = customization.buttons?.linkDisplayType || 'button';
@@ -378,21 +374,19 @@ function PublicProfile() {
                     >
                       <div className="card-overlay"></div>
                       <div className="card-content">
-                        <i className={`bi ${link.icon} card-icon`}></i>
+                        {link.icon && link.icon !== 'bi-ban' && <i className={`bi ${link.icon} card-icon`}></i>}
                         <h3 className="card-title">{link.title}</h3>
                         {link.description && (
                           <p className="card-description">{link.description}</p>
                         )}
                       </div>
                     </a>
-                  ) : (
-                    <>
-                  {/* Link/Menu Button */}
-                  {isMenu ? (
-                    // MENU BUTTON
+                  ) : isMenu ? (
+                    // MENU BUTTON - Navigate to menu page
                     <button
-                      className={`public-link-btn btn-shape-${customization.buttons.style} hover-${customization.buttons.hoverEffect} ${customization.buttons.shadow ? 'with-shadow' : ''} ${isExpanded ? 'expanded' : ''}`}
-                      onClick={() => handleToggleMenu(link.id)}
+                      type="button"
+                      className={`public-link-btn btn-shape-${customization.buttons.style} hover-${customization.buttons.hoverEffect} ${customization.buttons.shadow ? 'with-shadow' : ''}`}
+                      onClick={() => handleMenuClick(link.id)}
                       style={{
                         backgroundColor: customization.buttons.color,
                         border: customization.buttons.border > 0 
@@ -400,9 +394,9 @@ function PublicProfile() {
                           : 'none'
                       }}
                     >
-                      <i className={`bi ${link.icon}`}></i>
+                      {link.icon && link.icon !== 'bi-ban' && <i className={`bi ${link.icon}`}></i>}
                       <span>{link.title}</span>
-                      <i className={`bi bi-chevron-${isExpanded ? 'up' : 'down'} menu-chevron`}></i>
+                      <i className="bi bi-arrow-right menu-arrow"></i>
                     </button>
                   ) : (
                     // LINK BUTTON
@@ -419,37 +413,9 @@ function PublicProfile() {
                           : 'none'
                       }}
                     >
-                      <i className={`bi ${link.icon}`}></i>
+                      {link.icon && link.icon !== 'bi-ban' && <i className={`bi ${link.icon}`}></i>}
                       <span>{link.title}</span>
                     </a>
-                  )}
-                    </>
-                  )}
-
-                  {/* Menu Items Dropdown */}
-                  {isMenu && isExpanded && link.menu_items && (
-                    <div className="menu-dropdown">
-                      <div className="menu-items-grid">
-                        {link.menu_items.map((item, index) => (
-                          <div key={index} className="menu-item-card">
-                            {item.image && (
-                              <div className="menu-item-image">
-                                <img src={item.image} alt={item.name} />
-                              </div>
-                            )}
-                            <div className="menu-item-content">
-                              <h4 className="menu-item-name">{item.name}</h4>
-                              {item.description && (
-                                <p className="menu-item-description">{item.description}</p>
-                              )}
-                              <div className="menu-item-price">
-                                {item.price} {item.currency}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
                   )}
                 </div>
               );
